@@ -1,8 +1,8 @@
 all:
-	go build -i -v -o kd
+	go build -i -v
 
 release:
-	go build -i -ldflags "-s -w" -v -o kd
+	go build -i -ldflags "-s -w" -v
 	upx -9 -q kd > /dev/null
 
 test:
