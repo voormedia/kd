@@ -10,8 +10,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/voormedia/kdeploy/pkg/config"
-	"github.com/voormedia/kdeploy/pkg/util"
+	"github.com/voormedia/kd/pkg/config"
+	"github.com/voormedia/kd/pkg/util"
 )
 
 func Run(log *util.Logger) error {

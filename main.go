@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/voormedia/kdeploy/cmd"
+	"github.com/voormedia/kd/cmd"
 )
 
 func main() {

@@ -18,8 +18,8 @@ import (
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/registry"
 	"github.com/pkg/errors"
-	"github.com/voormedia/kdeploy/pkg/config"
-	"github.com/voormedia/kdeploy/pkg/util"
+	"github.com/voormedia/kd/pkg/config"
+	"github.com/voormedia/kd/pkg/util"
 )
 
 func buildImage(verbose bool, app *config.ResolvedApp) error {

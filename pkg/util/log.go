@@ -49,26 +49,3 @@ func (log *Logger) Fatal(a ...interface{}) {
 	log.Error(a...)
 	os.Exit(1)
 }
-
-func (log *Logger) Logf(fmt string, a ...interface{}) {
-	col := color.New(color.Bold, color.FgCyan)
-	col.Fprint(log.out, log.prefix+": ")
-	col.Fprintf(log.out, fmt+"\n", a...)
-}
-
-func (log *Logger) Successf(fmt string, a ...interface{}) {
-	col := color.New(color.Bold, color.FgGreen)
-	col.Fprint(log.out, log.prefix+": ")
-	col.Fprintf(log.out, fmt+"\n", a...)
-}
-
-func (log *Logger) Errorf(fmt string, a ...interface{}) {
-	col := color.New(color.Bold, color.FgRed)
-	col.Fprint(log.out, log.prefix+": ")
-	col.Fprintf(log.out, fmt+"\n", a...)
-}
-
-func (log *Logger) Fatalf(fmt string, a ...interface{}) {
-	log.Errorf(fmt, a...)
-	os.Exit(1)
-}

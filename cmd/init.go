@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/voormedia/kdeploy/pkg/scaffold"
+	"github.com/voormedia/kd/pkg/scaffold"
 )
 
 var cmdInit = &cobra.Command{

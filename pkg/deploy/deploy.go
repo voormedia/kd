@@ -8,10 +8,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/voormedia/kdeploy/pkg/config"
-	"github.com/voormedia/kdeploy/pkg/kinflate"
-	"github.com/voormedia/kdeploy/pkg/kubectl"
-	"github.com/voormedia/kdeploy/pkg/util"
+	"github.com/voormedia/kd/pkg/config"
+	"github.com/voormedia/kd/pkg/kinflate"
+	"github.com/voormedia/kd/pkg/kubectl"
+	"github.com/voormedia/kd/pkg/util"
 )
 
 func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp, target *config.ResolvedTarget) error {

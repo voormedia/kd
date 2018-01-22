@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/voormedia/kdeploy/pkg/util"
+	"github.com/voormedia/kd/pkg/util"
 )
 
 var log = util.NewLogger("kd")

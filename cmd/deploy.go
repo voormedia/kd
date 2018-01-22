@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/voormedia/kdeploy/pkg/config"
-	"github.com/voormedia/kdeploy/pkg/deploy"
+	"github.com/voormedia/kd/pkg/config"
+	"github.com/voormedia/kd/pkg/deploy"
 )
 
 var cmdDeploy = &cobra.Command{
