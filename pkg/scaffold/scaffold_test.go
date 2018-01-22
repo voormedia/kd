@@ -2,7 +2,9 @@ package scaffold
 
 import (
 	"bytes"
+	// "fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 
@@ -15,34 +17,43 @@ var fs = &afero.Afero{Fs: afero.NewMemMapFs()}
 func TestRequestDetails(t *testing.T) {
 	input := bytes.NewBufferString(strings.Join([]string{
 		"a Customer Name\n",
-		"Main Application\n",
 		"project-123456\n",
 		"cluster_Context\n",
 	}, ""))
 
-	data, err := requestDetails(input, ioutil.Discard)
+	data, err := requestDetails(fs, input, ioutil.Discard)
 	assert.Nil(t, err)
 	assert.Equal(t, &details{
+		Apps:     nil,
 		Customer: "a-customer-name",
-		Name:     "main-application",
 		Project:  "project-123456",
 		Context:  "cluster_Context",
 	}, data)
 }
 
-func TestRequestDetailsWithDefaults(t *testing.T) {
+func TestRequestDetailsWithApps(t *testing.T) {
+	root, _ := os.Getwd()
+	fs.WriteFile(root+"/Dockerfile", []byte{}, 0644)
+	fs.MkdirAll(root+"/foobar/baz", 0644)
+	fs.WriteFile(root+"/foobar/baz/Dockerfile", []byte{}, 0644)
+
 	input := bytes.NewBufferString(strings.Join([]string{
 		"a Customer Name\n",
-		"\n",
 		"project-123456\n",
 		"cluster_Context\n",
 	}, ""))
 
-	data, err := requestDetails(input, ioutil.Discard)
+	data, err := requestDetails(fs, input, ioutil.Discard)
 	assert.Nil(t, err)
 	assert.Equal(t, &details{
+		Apps: []app{{
+			Name: "scaffold", // PWD
+			Path: ".",
+		}, {
+			Name: "baz",
+			Path: "foobar/baz",
+		}},
 		Customer: "a-customer-name",
-		Name:     "scaffold", // Current working dir
 		Project:  "project-123456",
 		Context:  "cluster_Context",
 	}, data)
@@ -50,8 +61,14 @@ func TestRequestDetailsWithDefaults(t *testing.T) {
 
 func TestWriteConfig(t *testing.T) {
 	details := &details{
+		Apps: []app{{
+			Name: "my-website",
+			Path: ".",
+		}, {
+			Name: "other-app",
+			Path: "apps/other-app",
+		}},
 		Customer: "a-customer-name",
-		Name:     "main-application",
 		Project:  "project-123456",
 		Context:  "cluster_Context",
 	}
@@ -67,8 +84,10 @@ func TestWriteConfig(t *testing.T) {
 		"\n",
 		"# List of apps to build\n",
 		"apps:\n",
-		"- name: main-application\n",
+		"- name: my-website\n",
 		"  path: .\n",
+		"- name: other-app\n",
+		"  path: apps/other-app\n",
 		"\n",
 		"# List of available deployment targets\n",
 		"targets:\n",

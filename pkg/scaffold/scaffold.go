@@ -19,7 +19,8 @@ func Run(log *util.Logger) error {
 	log.Note("Please enter a few project details")
 
 	fs := &afero.Afero{Fs: afero.NewOsFs()}
-	details, err := requestDetails(os.Stdin, os.Stdout)
+
+	details, err := requestDetails(fs, os.Stdin, os.Stdout)
 	if err != nil {
 		return err
 	}
@@ -32,36 +33,25 @@ func Run(log *util.Logger) error {
 	return nil
 }
 
+type app struct {
+	Name string
+	Path string
+}
+
 type details struct {
+	Apps     []app
 	Customer string
-	Name     string
 	Project  string
 	Context  string
 }
 
-func requestDetails(in io.Reader, out io.Writer) (data *details, err error) {
+func requestDetails(afs *afero.Afero, in io.Reader, out io.Writer) (data *details, err error) {
 	reader := bufio.NewReader(in)
 
 	fmt.Fprint(out, "Name of customer: ")
 	customer, err := reader.ReadString('\n')
 	if err != nil {
 		return
-	}
-
-	dir, err := os.Getwd()
-	if err != nil {
-		return
-	}
-
-	dir = filepath.Base(dir)
-	fmt.Fprintf(out, "Name of main application [%s]: ", dir)
-	name, err := reader.ReadString('\n')
-	if err != nil {
-		return
-	}
-
-	if strings.TrimSpace(name) == "" {
-		name = dir
 	}
 
 	fmt.Fprint(out, "Google Cloud project id: ")
@@ -76,14 +66,53 @@ func requestDetails(in io.Reader, out io.Writer) (data *details, err error) {
 		return
 	}
 
+	apps, err := findApps(afs)
+	if err != nil {
+		return
+	}
+
 	data = &details{
+		Apps:     apps,
 		Customer: util.Slugify(customer),
-		Name:     util.Slugify(name),
 		Project:  strings.TrimSpace(project),
 		Context:  strings.TrimSpace(context),
 	}
 
 	return
+}
+
+func findApps(afs *afero.Afero) ([]app, error) {
+	root, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	var apps []app
+	afs.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+
+		if info.Name() == "Dockerfile" {
+			path := filepath.Dir(path)
+			name := filepath.Base(path)
+
+			path = strings.Replace(path, root+"", "", 1)
+			path = strings.Replace(path, "/", "", 1)
+			if path == "" {
+				path = "."
+			}
+
+			apps = append(apps, app{
+				Path: path,
+				Name: name,
+			})
+		}
+
+		return nil
+	})
+
+	return apps, nil
 }
 
 var kdeploy = template.Must(template.New(config.ConfigName).Parse(
@@ -92,8 +121,10 @@ registry: eu.gcr.io/{{.Project}}/{{.Customer}}
 
 # List of apps to build
 apps:
+{{- range .Apps}}
 - name: {{.Name}}
-  path: .
+  path: {{.Path}}
+{{- end}}
 
 # List of available deployment targets
 targets:
