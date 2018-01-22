@@ -5,11 +5,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"text/template"
 
+	"github.com/spf13/afero"
 	"github.com/voormedia/kd/pkg/config"
 	"github.com/voormedia/kd/pkg/util"
 )
@@ -17,12 +17,13 @@ import (
 func Run(log *util.Logger) error {
 	log.Note("Please enter a few project details")
 
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
 	details, err := requestDetails(os.Stdin, os.Stdout)
 	if err != nil {
 		return err
 	}
 
-	err = writeConfig(details)
+	err = writeConfig(fs, details)
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func requestDetails(in io.Reader, out io.Writer) (data *details, err error) {
 
 var kdeploy = template.Must(template.New(config.ConfigName).Parse(
 	`# Private docker registry to push images to
-registry: eu.gcr.io/{{.Customer}}/{{.Name}}
+registry: eu.gcr.io/{{.Project}}/{{.Customer}}
 
 # List of apps to build
 apps:
@@ -96,11 +97,11 @@ targets:
   path: config/deploy/production
 `))
 
-func writeConfig(details *details) error {
+func writeConfig(afs *afero.Afero, details *details) error {
 	var buf bytes.Buffer
 	if err := kdeploy.Execute(&buf, details); err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(config.ConfigName, buf.Bytes(), 0644)
+	return afs.WriteFile(config.ConfigName, buf.Bytes(), 0644)
 }
