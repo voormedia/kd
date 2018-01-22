@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -47,10 +48,20 @@ func requestDetails(in io.Reader, out io.Writer) (data *details, err error) {
 		return
 	}
 
-	fmt.Fprint(out, "Name of main application: ")
+	dir, err := os.Getwd()
+	if err != nil {
+		return
+	}
+
+	dir = filepath.Base(dir)
+	fmt.Fprintf(out, "Name of main application [%s]: ", dir)
 	name, err := reader.ReadString('\n')
 	if err != nil {
 		return
+	}
+
+	if strings.TrimSpace(name) == "" {
+		name = dir
 	}
 
 	fmt.Fprint(out, "Google Cloud project id: ")

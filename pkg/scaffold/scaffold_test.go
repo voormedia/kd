@@ -30,6 +30,24 @@ func TestRequestDetails(t *testing.T) {
 	}, data)
 }
 
+func TestRequestDetailsWithDefaults(t *testing.T) {
+	input := bytes.NewBufferString(strings.Join([]string{
+		"a Customer Name\n",
+		"\n",
+		"project-123456\n",
+		"cluster_Context\n",
+	}, ""))
+
+	data, err := requestDetails(input, ioutil.Discard)
+	assert.Nil(t, err)
+	assert.Equal(t, &details{
+		Customer: "a-customer-name",
+		Name:     "scaffold", // Current working dir
+		Project:  "project-123456",
+		Context:  "cluster_Context",
+	}, data)
+}
+
 func TestWriteConfig(t *testing.T) {
 	details := &details{
 		Customer: "a-customer-name",
