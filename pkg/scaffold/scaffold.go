@@ -17,7 +17,7 @@ import (
 func Run(log *util.Logger) error {
 	log.Note("Please enter a few project details")
 
-	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	fs := &afero.Afero{Fs: afero.NewOsFs()}
 	details, err := requestDetails(os.Stdin, os.Stdout)
 	if err != nil {
 		return err
