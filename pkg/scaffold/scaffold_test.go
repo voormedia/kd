@@ -1,10 +1,11 @@
 package scaffold
 
 import (
-	"bytes"
+	// "bytes"
 	// "fmt"
-	"io/ioutil"
+	// "io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -14,49 +15,23 @@ import (
 
 var fs = &afero.Afero{Fs: afero.NewMemMapFs()}
 
-func TestRequestDetails(t *testing.T) {
-	input := bytes.NewBufferString(strings.Join([]string{
-		"a Customer Name\n",
-		"project-123456\n",
-		"cluster_Context\n",
-	}, ""))
-
-	data, err := requestDetails(fs, input, ioutil.Discard)
-	assert.Nil(t, err)
-	assert.Equal(t, &details{
-		Apps:     nil,
-		Customer: "a-customer-name",
-		Project:  "project-123456",
-		Context:  "cluster_Context",
-	}, data)
-}
-
-func TestRequestDetailsWithApps(t *testing.T) {
+func TestFindApps(t *testing.T) {
 	root, _ := os.Getwd()
+	root, _ = filepath.EvalSymlinks(root)
+
 	fs.WriteFile(root+"/Dockerfile", []byte{}, 0644)
 	fs.MkdirAll(root+"/foobar/baz", 0644)
 	fs.WriteFile(root+"/foobar/baz/Dockerfile", []byte{}, 0644)
 
-	input := bytes.NewBufferString(strings.Join([]string{
-		"a Customer Name\n",
-		"project-123456\n",
-		"cluster_Context\n",
-	}, ""))
-
-	data, err := requestDetails(fs, input, ioutil.Discard)
+	apps, err := findApps(fs)
 	assert.Nil(t, err)
-	assert.Equal(t, &details{
-		Apps: []app{{
-			Name: "scaffold", // PWD
-			Path: ".",
-		}, {
-			Name: "baz",
-			Path: "foobar/baz",
-		}},
-		Customer: "a-customer-name",
-		Project:  "project-123456",
-		Context:  "cluster_Context",
-	}, data)
+	assert.Equal(t, []app{{
+		Name: "scaffold", // PWD
+		Path: ".",
+	}, {
+		Name: "baz",
+		Path: "foobar/baz",
+	}}, apps)
 }
 
 func TestWriteConfig(t *testing.T) {

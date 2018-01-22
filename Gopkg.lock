@@ -8,6 +8,12 @@
   version = "v0.18.0"
 
 [[projects]]
+  name = "github.com/AlecAivazis/survey"
+  packages = ["."]
+  revision = "0aa8b6a162b391fe2d95648b7677d1d6ac2090a6"
+  version = "v1.4.1"
+
+[[projects]]
   branch = "master"
   name = "github.com/Azure/go-ansiterm"
   packages = [".","winterm"]
@@ -331,6 +337,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/mgutz/ansi"
+  packages = ["."]
+  revision = "9520e82c474b0a04dd04f8a40959027271bab992"
+
+[[projects]]
+  branch = "master"
   name = "github.com/miekg/pkcs11"
   packages = ["."]
   revision = "57296583125bf58643f8bac3635bc1af1d65a6df"
@@ -498,6 +510,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "gopkg.in/AlecAivazis/survey.v1"
+  packages = ["core","terminal"]
+  revision = "0aa8b6a162b391fe2d95648b7677d1d6ac2090a6"
+  version = "v1.4.1"
+
+[[projects]]
   name = "gopkg.in/gcfg.v1"
   packages = [".","scanner","token","types"]
   revision = "298b7a6a3838f79debfaee8bd3bfb2b8d779e756"
@@ -561,7 +579,7 @@
   branch = "master"
   name = "k8s.io/kubectl"
   packages = ["pkg/apis/manifest/v1alpha1","pkg/kinflate/apps","pkg/kinflate/configmapandsecret","pkg/kinflate/configmapandsecret/util","pkg/kinflate/hash","pkg/kinflate/pod_template_visitor","pkg/scheme"]
-  revision = "94bc04db5ee324a4ea1e4cc8e5c62130c33a5d2c"
+  revision = "6da251948c2e9486542c0a9abae1d7351ff1bc8f"
 
 [[projects]]
   name = "k8s.io/kubernetes"
@@ -584,6 +602,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "93952f24375cfe0012143cc4085d10f33c6482114156b9945215d6e2e8f3f6cc"
+  inputs-digest = "ead8e0087bd48761826053aaa7d474fe591d2beb9069a00583dd9abaac7ab743"
   solver-name = "gps-cdcl"
   solver-version = 1
