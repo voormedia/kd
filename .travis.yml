@@ -1,9 +1,15 @@
 language: go
+
 go:
 - 1.9
 
 script:
 - make test
+
+addons:
+  apt:
+    packages:
+    - upx-ucl
 
 jobs:
   include:
@@ -13,6 +19,7 @@ jobs:
     - go get github.com/mitchellh/gox
     - go get github.com/tcnksm/ghr
     - gox -ldflags "-s -w" -arch amd64 -os darwin -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}"
+    - upx-ucl -9 dist/darwin_amd64_kd
     - ghr --username voormedia --token $GH_TOKEN --replace `git describe --tags` dist/
     os: linux
 
