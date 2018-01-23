@@ -19,11 +19,9 @@ import (
 )
 
 func Run(log *util.Logger) error {
-	log.Note("Please enter a few project details")
-
 	fs := &afero.Afero{Fs: afero.NewOsFs()}
 
-	details, err := requestDetails(fs, os.Stdin, os.Stdout)
+	details, err := requestDetails(fs, log, os.Stdin, os.Stdout)
 	if err != nil {
 		return err
 	}
@@ -32,6 +30,17 @@ func Run(log *util.Logger) error {
 	if err != nil {
 		return err
 	}
+
+	if len(details.Apps) == 0 {
+		log.Success("Created example configuration without any apps")
+	} else {
+		log.Success("Created example configuration for", strings.Join(details.appNames(), ", "))
+	}
+
+	log.Note("Next:  1. Review and adjust configuration")
+	log.Note("       2. Make sure your apps log to stdout/stderr")
+	log.Note("       3. Let your apps respond to health checks at /healthz")
+	log.Note("       4. Use kd to build and deploy")
 
 	return nil
 }
@@ -55,7 +64,15 @@ type details struct {
 	Apps     []app
 }
 
-func requestDetails(afs *afero.Afero, in io.Reader, out io.Writer) (*details, error) {
+func (d details) appNames() (names []string) {
+	names = make([]string, len(d.Apps))
+	for i, app := range d.Apps {
+		names[i] = app.Name
+	}
+	return
+}
+
+func requestDetails(afs *afero.Afero, log *util.Logger, in io.Reader, out io.Writer) (*details, error) {
 	projects, err := findProjects()
 	if err != nil {
 		return nil, err
@@ -65,6 +82,21 @@ func requestDetails(afs *afero.Afero, in io.Reader, out io.Writer) (*details, er
 	if err != nil {
 		return nil, err
 	}
+
+	apps, err := findApps(afs)
+	if err != nil {
+		return nil, err
+	}
+
+	data := &details{}
+	data.Apps = apps
+
+	if len(apps) == 0 {
+		log.Warn("Could not find any apps; are you missing a Dockerfile?")
+		log.Warn("Create a Dockerfile and rerun init to configure your app")
+	}
+
+	log.Note("Enter a few project details")
 
 	qs := []*survey.Question{
 		{
@@ -77,7 +109,7 @@ func requestDetails(afs *afero.Afero, in io.Reader, out io.Writer) (*details, er
 			Name:     "project",
 			Validate: survey.Required,
 			Prompt: &survey.Select{
-				Message: "Google cloud project id:",
+				Message: "Select Google cloud project id:",
 				Options: projects,
 			},
 		},
@@ -85,24 +117,16 @@ func requestDetails(afs *afero.Afero, in io.Reader, out io.Writer) (*details, er
 			Name:     "context",
 			Validate: survey.Required,
 			Prompt: &survey.Select{
-				Message: "Kubernetes cluster context:",
+				Message: "Select Kubernetes cluster context:",
 				Options: contexts,
 			},
 		},
 	}
 
-	data := &details{}
 	err = survey.Ask(qs, data)
 	if err != nil {
 		return nil, err
 	}
-
-	apps, err := findApps(afs)
-	if err != nil {
-		return nil, err
-	}
-
-	data.Apps = apps
 
 	return data, nil
 }
@@ -214,8 +238,9 @@ resources:
 `))
 
 var envManifest = template.Must(template.New("manifest.yaml").Parse(
-	`# List of patches to apply for this environment
+	`# List of patches to apply (in order) for this environment
 patches:
+- namespace.yaml
 - deployment.yaml
 - ingress.yaml
 
@@ -247,9 +272,7 @@ var bseIngress = template.Must(template.New("ingress.yaml").Parse(
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{.Name}}
-  labels:
-    app: {{.Name}}
+  name: ingress
   annotations:
     # Causes kube-lego to provision a TLS certificate with Let's encrypt.
     kubernetes.io/tls-acme: "true"
@@ -272,7 +295,7 @@ var envIngress = template.Must(template.New("ingress.yaml").Parse(
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{.Name}}
+  name: ingress
   annotations:
     kubernetes.io/ingress.global-static-ip-name: {{.Namespace}}
 
@@ -381,6 +404,14 @@ spec:
 {{- end}}
 `))
 
+var envNamespace = template.Must(template.New("deployment.yaml").Parse(
+	`# Namespace for the {{.Environment}} environment of this customer
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{.Namespace}}
+`))
+
 func writeConfig(afs *afero.Afero, details *details) error {
 	fs := &fsMonad{afs: afs}
 	fs.writeTemplate(config.ConfigName, kdeploy, details)
@@ -418,6 +449,9 @@ func writeConfig(afs *afero.Afero, details *details) error {
 		fs.writeTemplate(filepath.Join(bsePath, "deployment.yaml"), bseDeployment, bseApp)
 		fs.writeTemplate(filepath.Join(accPath, "deployment.yaml"), envDeployment, accApp)
 		fs.writeTemplate(filepath.Join(prdPath, "deployment.yaml"), envDeployment, prdApp)
+
+		fs.writeTemplate(filepath.Join(accPath, "namespace.yaml"), envNamespace, accApp)
+		fs.writeTemplate(filepath.Join(prdPath, "namespace.yaml"), envNamespace, prdApp)
 	}
 
 	return fs.err

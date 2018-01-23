@@ -245,6 +245,7 @@ func Apply(context string, namespace string, in io.Reader, out, errOut io.Writer
 				visitedUids.Insert(string(uid))
 			}
 
+			// fmt.Println(string(patchBytes))
 			if string(patchBytes) == "{}" {
 				count++
 				f.PrintSuccess(mapper, shortOutput, out, info.Mapping.Resource, info.Name, false, "unchanged")

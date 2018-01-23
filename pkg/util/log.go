@@ -39,6 +39,12 @@ func (log *Logger) Success(a ...interface{}) {
 	col.Fprintln(log.out, a...)
 }
 
+func (log *Logger) Warn(a ...interface{}) {
+	col := color.New(color.Bold, color.FgYellow)
+	col.Fprint(log.out, log.prefix+": ")
+	col.Fprintln(log.out, a...)
+}
+
 func (log *Logger) Error(a ...interface{}) {
 	col := color.New(color.Bold, color.FgRed)
 	col.Fprint(log.out, log.prefix+": ")

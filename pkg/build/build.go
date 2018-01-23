@@ -3,7 +3,6 @@ package build
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
 	"os"
 	"os/exec"
 
@@ -72,8 +71,14 @@ func buildImage(verbose bool, app *config.ResolvedApp) error {
 	if verbose {
 		return jsonmessage.DisplayJSONMessagesStream(res.Body, os.Stderr, os.Stderr.Fd(), true, nil)
 	} else {
-		_, err := ioutil.ReadAll(res.Body)
-		return err
+		var buf bytes.Buffer
+		err := jsonmessage.DisplayJSONMessagesStream(res.Body, &buf, os.Stderr.Fd(), true, nil)
+		if err != nil {
+			os.Stderr.Write(buf.Bytes())
+			return err
+		}
+
+		return nil
 	}
 }
 
