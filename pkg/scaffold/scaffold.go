@@ -360,7 +360,7 @@ spec:
       #   image: gcr.io/cloudsql-docker/gce-proxy:1.11
       #   command: [
       #     "/cloud_sql_proxy",
-      #     "-instances=<INSTANCE NAME>=tcp:5432",
+      #     "-instances=<INSTANCE-NAME>=tcp:5432",
       #     "-credential_file=/secrets/cloudsql/credentials.json"
       #   ]
       #
@@ -370,8 +370,8 @@ spec:
       #     readOnly: true
 
       # To create this secret, run:
-      #   kd kubectl {{.Environment}} create secret generic \
-      #   cloudsql-instance-credentials --from-file=credentials.json=<KEY FILE>
+      #   kd kubectl <ENVIRONMENT> create secret generic
+      #   cloudsql-instance-credentials --from-file=credentials.json=<KEY-FILE>
       # volumes:
       # - name: cloudsql-instance-credentials
       #   secret:
