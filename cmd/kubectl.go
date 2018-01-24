@@ -14,6 +14,8 @@ var cmdKubectl = &cobra.Command{
 	Short: "Invoke kubectl with project context and namespace",
 	Args:  cobra.MinimumNArgs(1),
 
+	DisableFlagParsing: true,
+
 	Run: func(_ *cobra.Command, args []string) {
 		tgt, err := config.ResolveTargetName(args[0])
 		if err != nil {
