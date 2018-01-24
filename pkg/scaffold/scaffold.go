@@ -370,7 +370,7 @@ spec:
       #     readOnly: true
 
       # To create this secret, run:
-      #   kd kubectl acceptance create secret generic \
+      #   kd kubectl {{.Environment}} create secret generic \
       #   cloudsql-instance-credentials --from-file=credentials.json=<KEY FILE>
       # volumes:
       # - name: cloudsql-instance-credentials
