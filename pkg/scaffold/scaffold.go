@@ -311,7 +311,7 @@ spec:
 
 var bseDeployment = template.Must(template.New("deployment.yaml").Parse(
 	`# Defines an app consisting of one or more identical pods
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   name: {{.Name}}
@@ -380,7 +380,7 @@ spec:
 
 var envDeployment = template.Must(template.New("deployment.yaml").Parse(
 	`# Defines an app consisting of one or more identical pods
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   name: {{.Name}}
