@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/docker/cli/cli/command"
 	"github.com/docker/cli/cli/command/image/build"
@@ -30,7 +31,12 @@ func buildImage(verbose bool, app *config.ResolvedApp) error {
 		return err
 	}
 
-	dir, dockerfile, err := build.GetContextFromLocalDir(app.Path, "")
+	if app.Root == "" {
+		app.Root = app.Path
+	}
+
+	dockerfile := filepath.Join(app.Path, build.DefaultDockerfileName)
+	dir, dockerfile, err := build.GetContextFromLocalDir(app.Root, dockerfile)
 	excludes, err := build.ReadDockerignore(dir)
 	if err != nil {
 		return err
@@ -47,8 +53,8 @@ func buildImage(verbose bool, app *config.ResolvedApp) error {
 
 	excludes = build.TrimBuildFilesFromExcludes(excludes, dockerfile, false)
 	build, err := archive.TarWithOptions(dir, &archive.TarOptions{
-		ExcludePatterns: excludes,
 		ChownOpts:       &idtools.IDPair{UID: 0, GID: 0},
+		ExcludePatterns: excludes,
 	})
 
 	if err != nil {
@@ -56,6 +62,7 @@ func buildImage(verbose bool, app *config.ResolvedApp) error {
 	}
 
 	opt := types.ImageBuildOptions{
+		Dockerfile:  dockerfile,
 		ForceRemove: true,
 		PullParent:  true,
 		Tags:        []string{app.Tag()},

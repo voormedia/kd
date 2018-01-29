@@ -3,6 +3,7 @@ package config
 type App struct {
 	Name string `yaml:"name,omitempty"`
 	Path string `yaml:"path,omitempty"`
+	Root string `yaml:"root,omitempty"`
 }
 
 type Target struct {
