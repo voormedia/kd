@@ -7,17 +7,22 @@ import (
 )
 
 var cmdDeploy = &cobra.Command{
-	Use:   "deploy <TARGET>",
+	Use:   "deploy [APP] <TARGET>",
 	Short: "Configure and deploy apps to k8s cluster",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.RangeArgs(1, 2),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		apps, err := config.ResolveAppNames([]string{})
+		names := []string{}
+		if len(args) > 1 {
+			names = args[0:1]
+		}
+
+		apps, err := config.ResolveAppNames(names)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		tgt, err := config.ResolveTargetName(args[0])
+		tgt, err := config.ResolveTargetName(args[len(args)-1])
 		if err != nil {
 			log.Fatal(err)
 		}
