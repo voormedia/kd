@@ -229,7 +229,7 @@ targets:
   path: config/deploy/production
 `))
 
-var bseManifest = template.Must(template.New("manifest.yaml").Parse(
+var bseManifest = template.Must(template.New("kube-manifest.yaml").Parse(
 	`# List of base resources
 resources:
 - deployment.yaml
@@ -237,7 +237,7 @@ resources:
 - ingress.yaml
 `))
 
-var envManifest = template.Must(template.New("manifest.yaml").Parse(
+var envManifest = template.Must(template.New("kube-manifest.yaml").Parse(
 	`# List of patches to apply (in order) for this environment
 patches:
 - namespace.yaml
@@ -458,9 +458,9 @@ func writeConfig(afs *afero.Afero, details *details) error {
 		fs.mkdir(accPath)
 		fs.mkdir(prdPath)
 
-		fs.writeTemplate(filepath.Join(bsePath, "manifest.yaml"), bseManifest, bseApp)
-		fs.writeTemplate(filepath.Join(accPath, "manifest.yaml"), envManifest, accApp)
-		fs.writeTemplate(filepath.Join(prdPath, "manifest.yaml"), envManifest, prdApp)
+		fs.writeTemplate(filepath.Join(bsePath, "kube-manifest.yaml"), bseManifest, bseApp)
+		fs.writeTemplate(filepath.Join(accPath, "kube-manifest.yaml"), envManifest, accApp)
+		fs.writeTemplate(filepath.Join(prdPath, "kube-manifest.yaml"), envManifest, prdApp)
 
 		fs.writeTemplate(filepath.Join(bsePath, "service.yaml"), bseService, bseApp)
 

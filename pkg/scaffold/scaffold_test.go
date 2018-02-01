@@ -51,7 +51,7 @@ func TestWriteConfig(t *testing.T) {
 	err := writeConfig(fs, details)
 	assert.Nil(t, err)
 
-	data, err := fs.ReadFile("kdeploy.conf")
+	kdeploy, err := fs.ReadFile("kdeploy.conf")
 	assert.Nil(t, err)
 	assert.Equal(t, strings.Join([]string{
 		"# Private docker registry to push images to\n",
@@ -75,5 +75,29 @@ func TestWriteConfig(t *testing.T) {
 		"  context: cluster_Context\n",
 		"  namespace: a-customer-name-prd\n",
 		"  path: config/deploy/production\n",
-	}, ""), string(data))
+	}, ""), string(kdeploy))
+
+	bseManifest, err := fs.ReadFile("config/deploy/kube-manifest.yaml")
+	assert.Nil(t, err)
+	assert.Equal(t, strings.Join([]string{
+		"# List of base resources\n",
+		"resources:\n",
+		"- deployment.yaml\n",
+		"- service.yaml\n",
+		"- ingress.yaml\n",
+	}, ""), string(bseManifest))
+
+	accManifest, err := fs.ReadFile("config/deploy/acceptance/kube-manifest.yaml")
+	assert.Nil(t, err)
+	assert.Equal(t, strings.Join([]string{
+		"# List of patches to apply (in order) for this environment\n",
+		"patches:\n",
+		"- namespace.yaml\n",
+		"- deployment.yaml\n",
+		"- ingress.yaml\n",
+		"\n",
+		"# Patches are applied to base resources\n",
+		"resources:\n",
+		"- ..\n",
+	}, ""), string(accManifest))
 }
