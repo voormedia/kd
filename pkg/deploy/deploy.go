@@ -9,9 +9,9 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/voormedia/kd/pkg/config"
-	"github.com/voormedia/kd/pkg/kinflate"
-	"github.com/voormedia/kd/pkg/kubectl"
 	"github.com/voormedia/kd/pkg/util"
+	outil "k8s.io/kubectl/pkg/kinflate"
+	kutil "k8s.io/kubectl/pkg/kinflate/util"
 )
 
 func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp, target *config.ResolvedTarget) error {
@@ -23,11 +23,18 @@ func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp, target *con
 		}
 
 		log.Note("Applying configuration")
-		buf := &bytes.Buffer{}
-		err = kinflate.Run(filepath.Join(app.Path, target.Path), buf)
+
+		manifest, err := outil.LoadFromManifestPath(filepath.Join(app.Path, target.Path))
 		if err != nil {
 			return err
 		}
+
+		res, err := kutil.Encode(manifest)
+		if err != nil {
+			return err
+		}
+
+		buf := bytes.NewBuffer(res)
 
 		/* HACK to set deployment image. */
 		buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("image: "+app.Name), []byte("image: "+img), -1))
@@ -36,19 +43,19 @@ func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp, target *con
 		   incorrectly believe that a configuration has been made. */
 		buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("annotations: {}\n"), []byte("\n"), -1))
 
-		// os.Stdout.Write(buf.Bytes())
-		err = kubectl.Apply(target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
-		if err != nil {
-			return err
-		}
-
-		log.Note("Tagging deployed image")
-		err = tagImage(img, app.Tag()+":"+target.Name)
-		if err != nil {
-			return err
-		}
-
-		log.Success("Successfully deployed", app.Tag())
+		os.Stdout.Write(buf.Bytes())
+		// err = kubectl.Apply(target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
+		// if err != nil {
+		// 	return err
+		// }
+		//
+		// log.Note("Tagging deployed image")
+		// err = tagImage(img, app.Tag()+":"+target.Name)
+		// if err != nil {
+		// 	return err
+		// }
+		//
+		// log.Success("Successfully deployed", app.Tag())
 	}
 
 	return nil
