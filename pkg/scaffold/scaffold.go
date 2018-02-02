@@ -418,6 +418,9 @@ spec:
         resources:
           # No minimum resources means this application will be scheduled in
           # {{.Environment}} on a best-effort basis.
+          requests:
+            cpu: 0m
+            memory: 0Mi
 
           # Terminate application if it exceeds these limits.
           limits:
