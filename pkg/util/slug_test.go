@@ -19,6 +19,6 @@ var testCases = []testCase{
 
 func TestSlugify(t *testing.T) {
 	for _, tc := range testCases {
-		assert.Equal(t, Slugify(tc.in), tc.out)
+		assert.Equal(t, tc.out, Slugify(tc.in))
 	}
 }

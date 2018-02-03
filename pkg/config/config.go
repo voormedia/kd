@@ -3,12 +3,14 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
 
 type ResolvedApp struct {
 	App
+	Tag      string
 	Registry string
 }
 
@@ -16,6 +18,7 @@ type ResolvedTarget struct {
 	Target
 }
 
+const DefaultTag = "latest"
 const ConfigName = "kdeploy.conf"
 
 func Load() (*Config, error) {
@@ -67,6 +70,7 @@ func (conf *Config) ResolveApps() []*ResolvedApp {
 	for i, app := range conf.Apps {
 		apps[i] = &ResolvedApp{
 			App:      app,
+			Tag:      DefaultTag,
 			Registry: conf.Registry,
 		}
 	}
@@ -75,10 +79,18 @@ func (conf *Config) ResolveApps() []*ResolvedApp {
 }
 
 func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
+	parts := strings.Split(name, ":")
+	tag := DefaultTag
+	name = parts[0]
+	if len(parts) > 1 {
+		tag = parts[1]
+	}
+
 	for _, app := range conf.Apps {
 		if app.Name == name {
 			return &ResolvedApp{
 				App:      app,
+				Tag:      tag,
 				Registry: conf.Registry,
 			}, nil
 		}
@@ -99,6 +111,14 @@ func (conf *Config) ResolveTarget(name string) (*ResolvedTarget, error) {
 	return nil, fmt.Errorf("Unknown target '%s'", name)
 }
 
-func (app *ResolvedApp) Tag() string {
-	return fmt.Sprintf("%s/%s", app.Registry, app.Name)
+func (app *ResolvedApp) Repository() string {
+	return app.TaggedRepository(app.Tag)
+}
+
+func (app *ResolvedApp) TaggedRepository(tag string) string {
+	reg := app.Registry + "/" + app.Name
+	if tag != DefaultTag {
+		reg = reg + ":" + tag
+	}
+	return reg
 }

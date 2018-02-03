@@ -65,7 +65,7 @@ func buildImage(verbose bool, app *config.ResolvedApp) error {
 		Dockerfile:  dockerfile,
 		ForceRemove: true,
 		PullParent:  true,
-		Tags:        []string{app.Tag()},
+		Tags:        []string{app.Repository()},
 	}
 
 	res, err := cli.ImageBuild(ctx, build, opt)
@@ -106,7 +106,7 @@ func pushImage(verbose bool, app *config.ResolvedApp) error {
 		return err
 	}
 
-	ref, err := reference.ParseNormalizedNamed(app.Tag())
+	ref, err := reference.ParseNormalizedNamed(app.Repository())
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp) error {
 			log.Fatal(err)
 		}
 
-		log.Success("Successfully built", app.Tag())
+		log.Success("Successfully built", app.Repository())
 	}
 
 	return nil

@@ -18,7 +18,7 @@ import (
 func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp, target *config.ResolvedTarget) error {
 	for _, app := range apps {
 		log.Note("Retrieving latest image for", app.Name)
-		img, err := getLatestImage(app.Tag())
+		img, err := getImage(app.Repository())
 		if err != nil {
 			return err
 		}
@@ -51,20 +51,19 @@ func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp, target *con
 		}
 
 		log.Note("Tagging deployed image")
-		err = tagImage(img, app.Tag()+":"+target.Name)
+		err = tagImage(img, app.TaggedRepository(target.Name))
 		if err != nil {
 			return err
 		}
 
-		log.Success("Successfully deployed", app.Tag())
+		log.Success("Successfully deployed", app.Repository())
 	}
 
 	return nil
 }
 
-func getLatestImage(image string) (string, error) {
-	cmd := exec.Command("gcloud", "container", "images", "describe",
-		image+":latest",
+func getImage(image string) (string, error) {
+	cmd := exec.Command("gcloud", "container", "images", "describe", image,
 		"--format=value(image_summary.fully_qualified_digest)",
 	)
 

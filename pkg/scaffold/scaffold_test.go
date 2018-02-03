@@ -1,9 +1,6 @@
 package scaffold
 
 import (
-	// "bytes"
-	// "fmt"
-	// "io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
