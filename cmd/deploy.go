@@ -7,11 +7,26 @@ import (
 )
 
 var cmdDeploy = &cobra.Command{
-	Use:   "deploy [APP] <TARGET>",
-	Short: "Configure and deploy apps to k8s cluster",
+	Use:   "deploy [app[:tag]] <target>",
+	Short: "Configure and deploy applications to a cluster",
 	Args:  cobra.RangeArgs(1, 2),
+	// Aliases: []string{"dep"},
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Long: `Deploys either all applications, or a single application to the given target.
+By default the application image with the 'latest' tag in the registry will
+be deployed. The tag of the image to deploy can optionally be specified when
+deploying a single application.
+
+Any image that was successfully deployed will be tagged with the name of the
+target to which it was deployed.`,
+
+	Example: "  kd deploy my-app production",
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+		cmd.ValidArgs = config.TargetNames()
+	},
+
+	Run: func(_ *cobra.Command, args []string) {
 		names := []string{}
 		if len(args) > 1 {
 			names = args[0:1]

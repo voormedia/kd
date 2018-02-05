@@ -9,7 +9,7 @@ var cmdInit = &cobra.Command{
 	Use:   "init",
 	Short: "Generate initial configuration files",
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, args []string) {
 		if err := scaffold.Run(log); err != nil {
 			log.Fatal(err)
 		}

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"text/template"
+
 	"github.com/spf13/cobra"
 )
 
@@ -8,8 +10,11 @@ var cmdVersion = &cobra.Command{
 	Use:   "version",
 	Short: "Show version",
 
+	Long: "Show version number and exit",
+
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Log("version", cmdRoot.Version)
+		tmpl := template.Must(template.New("top").Parse(cmd.VersionTemplate()))
+		tmpl.Execute(cmd.OutOrStdout(), cmdRoot)
 	},
 }
 

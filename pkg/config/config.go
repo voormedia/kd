@@ -32,6 +32,22 @@ func Load() (*Config, error) {
 	return &pkg, err
 }
 
+func AppNames() []string {
+	config, err := Load()
+	if err != nil {
+		return []string{}
+	}
+	return config.AppNames()
+}
+
+func TargetNames() []string {
+	config, err := Load()
+	if err != nil {
+		return []string{}
+	}
+	return config.TargetNames()
+}
+
 func ResolveAppNames(names []string) ([]*ResolvedApp, error) {
 	config, err := Load()
 	if err != nil {
@@ -62,6 +78,16 @@ func ResolveTargetName(name string) (*ResolvedTarget, error) {
 	}
 
 	return config.ResolveTarget(name)
+}
+
+func (conf *Config) AppNames() []string {
+	names := make([]string, len(conf.Apps))
+
+	for i, app := range conf.Apps {
+		names[i] = app.Name
+	}
+
+	return names
 }
 
 func (conf *Config) ResolveApps() []*ResolvedApp {
@@ -97,6 +123,16 @@ func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
 	}
 
 	return nil, fmt.Errorf("Unknown app '%s'", name)
+}
+
+func (conf *Config) TargetNames() []string {
+	names := make([]string, len(conf.Targets))
+
+	for i, tgt := range conf.Targets {
+		names[i] = tgt.Name
+	}
+
+	return names
 }
 
 func (conf *Config) ResolveTarget(name string) (*ResolvedTarget, error) {

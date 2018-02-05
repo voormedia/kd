@@ -7,11 +7,22 @@ import (
 )
 
 var cmdBuild = &cobra.Command{
-	Use:   "build [APP...]",
-	Short: "Build container images for apps",
+	Use:   "build [app[:tag] ...]",
+	Short: "Build container images for all or some applications",
 	Args:  cobra.ArbitraryArgs,
+	// Aliases: []string{"bld"},
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Long: `Builds either all applications, or a single application. Application images
+will be pushed to the registry and tagged as 'latest' by default. The tag can
+optionally be specified per application.`,
+
+	Example: "  kd build my-app my-other-app",
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+		cmd.ValidArgs = config.AppNames()
+	},
+
+	Run: func(_ *cobra.Command, args []string) {
 		apps, err := config.ResolveAppNames(args)
 		if err != nil {
 			log.Fatal(err)

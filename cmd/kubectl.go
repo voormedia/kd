@@ -10,9 +10,18 @@ import (
 )
 
 var cmdKubectl = &cobra.Command{
-	Use:   "kubectl <TARGET>",
+	Use:   "kubectl <target> [commands ...]",
 	Short: "Invoke kubectl with project context and namespace",
 	Args:  cobra.MinimumNArgs(1),
+	// Aliases: []string{"ctl"},
+
+	Long: `Invokes kubectl with the project context and namespace defined by the given
+target. This ensures you always send commands to the correct cluster, with the
+correct credentials and namespace.
+
+This is meant to be used as a replacement for invoking kubectl directly.`,
+
+	Example: "  kd kubectl production get pods -o wide",
 
 	DisableFlagParsing: true,
 
