@@ -409,7 +409,8 @@ spec:
             cpu: 100m
             memory: 250Mi
 
-          # Terminate application if it exceeds these limits.
+          # Limit CPU and memory usage of this application. If the pod uses
+          # more than the specified amount of memory, it will be terminated.
           limits:
             cpu: 500m
             memory: 500Mi
@@ -422,7 +423,8 @@ spec:
             cpu: 0m
             memory: 0Mi
 
-          # Terminate application if it exceeds these limits.
+          # Limit CPU and memory usage of this application. If the pod uses
+          # more than the specified amount of memory, it will be terminated.
           limits:
             cpu: 500m
             memory: 500Mi
