@@ -17,7 +17,7 @@ import (
 
 func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp, target *config.ResolvedTarget) error {
 	for _, app := range apps {
-		log.Note("Retrieving latest image for", app.Name)
+		log.Note("Retrieving application image", app.Name+":"+app.Tag)
 		img, err := getImage(app.Repository())
 		if err != nil {
 			return err
