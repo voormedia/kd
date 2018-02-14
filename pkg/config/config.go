@@ -68,7 +68,7 @@ func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
 			}, nil
 		}
 
-		return nil, fmt.Errorf("Selecting default requires exactly 1 app (found %d apps)", len(conf.Apps))
+		return nil, fmt.Errorf("Selecting default requires exactly 1 application (%d configured)", len(conf.Apps))
 	} else {
 		for _, app := range conf.Apps {
 			if app.Name == name {
@@ -80,7 +80,7 @@ func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
 			}
 		}
 
-		return nil, fmt.Errorf("Unknown app '%s'", name)
+		return nil, fmt.Errorf("Unknown application '%s'", name)
 	}
 }
 

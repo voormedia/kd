@@ -174,7 +174,7 @@ func TestResolveMissingApp(t *testing.T) {
 
 	app, err := conf.ResolveApp("bar")
 	assert.Nil(t, app)
-	assert.Equal(t, "Unknown app 'bar'", err.Error())
+	assert.Equal(t, "Unknown application 'bar'", err.Error())
 }
 
 func TestResolveDefaultAppForSingle(t *testing.T) {
@@ -209,7 +209,7 @@ func TestResolveDefaultAppForMultiple(t *testing.T) {
 
 	app, err := conf.ResolveApp("")
 	assert.Nil(t, app)
-	assert.Equal(t, "Selecting default requires exactly 1 app (found 2 apps)", err.Error())
+	assert.Equal(t, "Selecting default requires exactly 1 application (2 configured)", err.Error())
 }
 
 func TestResolveDefaultAppForNone(t *testing.T) {
@@ -220,7 +220,7 @@ func TestResolveDefaultAppForNone(t *testing.T) {
 
 	app, err := conf.ResolveApp("")
 	assert.Nil(t, app)
-	assert.Equal(t, "Selecting default requires exactly 1 app (found 0 apps)", err.Error())
+	assert.Equal(t, "Selecting default requires exactly 1 application (0 configured)", err.Error())
 }
 
 func TestResolveExistingTargetAlias(t *testing.T) {

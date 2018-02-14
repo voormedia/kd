@@ -8,14 +8,14 @@ import (
 
 var cmdDeploy = &cobra.Command{
 	Use:     "deploy [app[:tag]] <target>",
-	Short:   "Configure and deploy applications to a cluster",
+	Short:   "Configure and deploy an application to a cluster",
 	Args:    cobra.RangeArgs(1, 2),
 	Aliases: []string{"dep"},
 
-	Long: `Deploys either all applications, or a single application to the given target.
-By default the application image with the 'latest' tag in the registry will
-be deployed. The tag of the image to deploy can optionally be specified when
-deploying a single application.
+	Long: `Deploys a single application to the given target. If only one application
+is configured, the name can be omitted. By default the application image with
+the 'latest' tag in the registry will be deployed. The tag of the image to
+deploy can optionally be specified.
 
 Any image that was successfully deployed will be tagged with the name of the
 target to which it was deployed.`,
