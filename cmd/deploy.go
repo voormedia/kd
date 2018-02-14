@@ -23,7 +23,7 @@ target to which it was deployed.`,
 	Example: "  kd deploy my-app production",
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-		if conf, err := config.Load(); err != nil {
+		if conf, err := config.Load(); err == nil {
 			cmd.ValidArgs = conf.TargetNames()
 		}
 	},

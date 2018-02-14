@@ -19,7 +19,7 @@ as 'latest' by default. The tag can optionally be specified per application.`,
 	Example: "  kd build my-app",
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-		if conf, err := config.Load(); err != nil {
+		if conf, err := config.Load(); err == nil {
 			cmd.ValidArgs = conf.AppNames()
 		}
 	},

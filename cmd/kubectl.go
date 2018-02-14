@@ -26,7 +26,7 @@ This is meant to be used as a replacement for invoking kubectl directly.`,
 	DisableFlagParsing: true,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-		if conf, err := config.Load(); err != nil {
+		if conf, err := config.Load(); err == nil {
 			cmd.ValidArgs = conf.TargetNames()
 		}
 	},
