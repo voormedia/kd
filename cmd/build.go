@@ -7,10 +7,10 @@ import (
 )
 
 var cmdBuild = &cobra.Command{
-	Use:   "build [app[:tag] ...]",
-	Short: "Build container images for all or some applications",
-	Args:  cobra.ArbitraryArgs,
-	// Aliases: []string{"bld"},
+	Use:     "build app[:tag]",
+	Short:   "Build container images for all or some applications",
+	Args:    cobra.RangeArgs(1, 1),
+	Aliases: []string{"bld"},
 
 	Long: `Builds either all applications, or a single application. Application images
 will be pushed to the registry and tagged as 'latest' by default. The tag can
@@ -19,16 +19,23 @@ optionally be specified per application.`,
 	Example: "  kd build my-app my-other-app",
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-		cmd.ValidArgs = config.AppNames()
+		if conf, err := config.Load(); err != nil {
+			cmd.ValidArgs = conf.AppNames()
+		}
 	},
 
 	Run: func(_ *cobra.Command, args []string) {
-		apps, err := config.ResolveAppNames(args)
+		conf, err := config.Load()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = build.Run(verbose, log, apps)
+		app, err := conf.ResolveApp(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = build.Run(verbose, log, app)
 		if err != nil {
 			log.Fatal(err)
 		}

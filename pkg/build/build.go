@@ -116,6 +116,7 @@ func pushImage(verbose bool, app *config.ResolvedApp) error {
 		return err
 	}
 
+	/* Use https://github.com/GoogleCloudPlatform/docker-credential-gcr ? */
 	conf := cliconfig.LoadDefaultConfigFile(os.Stderr)
 	authConfig, err := conf.GetAuthConfig(repoInfo.Index.Name)
 	if err != nil {
@@ -141,20 +142,32 @@ func pushImage(verbose bool, app *config.ResolvedApp) error {
 	return jsonmessage.DisplayJSONMessagesStream(res, os.Stderr, os.Stderr.Fd(), true, nil)
 }
 
-func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp) error {
-	for _, app := range apps {
-		log.Note("Building", app.Name)
-		if err := buildImage(verbose, app); err != nil {
+func Run(verbose bool, log *util.Logger, app *config.ResolvedApp) error {
+	log.Note("Building", app.Name)
+
+	if app.PreBuild != "" {
+		cmd := exec.Command("sh", "-c", app.PreBuild)
+		if err := cmd.Run(); err != nil {
 			log.Fatal(err)
 		}
-
-		log.Note("Pushing", app.Name)
-		if err := pushImage(verbose, app); err != nil {
-			log.Fatal(err)
-		}
-
-		log.Success("Successfully built", app.Repository())
 	}
 
+	if err := buildImage(verbose, app); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Note("Pushing", app.Name)
+	if err := pushImage(verbose, app); err != nil {
+		log.Fatal(err)
+	}
+
+	if app.PostBuild != "" {
+		cmd := exec.Command("sh", "-c", app.PostBuild)
+		if err := cmd.Run(); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	log.Success("Successfully built", app.Repository())
 	return nil
 }

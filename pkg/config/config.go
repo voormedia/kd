@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 
+	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"gopkg.in/yaml.v2"
 )
 
@@ -22,62 +23,21 @@ const DefaultTag = "latest"
 const ConfigName = "kdeploy.conf"
 
 func Load() (*Config, error) {
-	bytes, err := ioutil.ReadFile(ConfigName)
+	return loadFromFs(&afero.Afero{Fs: afero.NewOsFs()})
+}
+
+func loadFromFs(afs *afero.Afero) (*Config, error) {
+	bytes, err := afs.ReadFile(ConfigName)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Config error")
 	}
 
 	var pkg Config
-	err = yaml.UnmarshalStrict(bytes, &pkg)
-	return &pkg, err
-}
-
-func AppNames() []string {
-	config, err := Load()
-	if err != nil {
-		return []string{}
-	}
-	return config.AppNames()
-}
-
-func TargetNames() []string {
-	config, err := Load()
-	if err != nil {
-		return []string{}
-	}
-	return config.TargetNames()
-}
-
-func ResolveAppNames(names []string) ([]*ResolvedApp, error) {
-	config, err := Load()
-	if err != nil {
-		return nil, err
+	if err := yaml.UnmarshalStrict(bytes, &pkg); err != nil {
+		return nil, errors.Wrap(err, "Config error")
 	}
 
-	var apps []*ResolvedApp
-	if len(names) == 0 {
-		apps = config.ResolveApps()
-	} else {
-		for _, name := range names {
-			app, err := config.ResolveApp(name)
-			if err != nil {
-				return nil, err
-			}
-
-			apps = append(apps, app)
-		}
-	}
-
-	return apps, nil
-}
-
-func ResolveTargetName(name string) (*ResolvedTarget, error) {
-	config, err := Load()
-	if err != nil {
-		return nil, err
-	}
-
-	return config.ResolveTarget(name)
+	return &pkg, nil
 }
 
 func (conf *Config) AppNames() []string {
@@ -90,21 +50,8 @@ func (conf *Config) AppNames() []string {
 	return names
 }
 
-func (conf *Config) ResolveApps() []*ResolvedApp {
-	apps := make([]*ResolvedApp, len(conf.Apps))
-
-	for i, app := range conf.Apps {
-		apps[i] = &ResolvedApp{
-			App:      app,
-			Tag:      DefaultTag,
-			Registry: conf.Registry,
-		}
-	}
-
-	return apps
-}
-
 func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
+	/* TODO: No naming conflicts are checked yet. Returns the first match. */
 	parts := strings.Split(name, ":")
 	tag := DefaultTag
 	name = parts[0]
@@ -112,17 +59,29 @@ func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
 		tag = parts[1]
 	}
 
-	for _, app := range conf.Apps {
-		if app.Name == name {
+	if name == "" {
+		if len(conf.Apps) == 1 {
 			return &ResolvedApp{
-				App:      app,
+				App:      conf.Apps[0],
 				Tag:      tag,
 				Registry: conf.Registry,
 			}, nil
 		}
-	}
 
-	return nil, fmt.Errorf("Unknown app '%s'", name)
+		return nil, fmt.Errorf("Selecting default requires exactly 1 app (found %d apps)", len(conf.Apps))
+	} else {
+		for _, app := range conf.Apps {
+			if app.Name == name {
+				return &ResolvedApp{
+					App:      app,
+					Tag:      tag,
+					Registry: conf.Registry,
+				}, nil
+			}
+		}
+
+		return nil, fmt.Errorf("Unknown app '%s'", name)
+	}
 }
 
 func (conf *Config) TargetNames() []string {
@@ -136,8 +95,9 @@ func (conf *Config) TargetNames() []string {
 }
 
 func (conf *Config) ResolveTarget(name string) (*ResolvedTarget, error) {
+	/* TODO: No naming conflicts are checked yet. Returns the first match. */
 	for _, tgt := range conf.Targets {
-		if tgt.Name == name {
+		if tgt.Name == name || stupidContains(tgt.Alias, name) {
 			return &ResolvedTarget{
 				Target: tgt,
 			}, nil
@@ -157,4 +117,29 @@ func (app *ResolvedApp) TaggedRepository(tag string) string {
 		reg = reg + ":" + tag
 	}
 	return reg
+}
+
+func (a *StringArray) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var multi []string
+	err := unmarshal(&multi)
+	if err != nil {
+		var single string
+		err := unmarshal(&single)
+		if err != nil {
+			return err
+		}
+		*a = []string{single}
+	} else {
+		*a = multi
+	}
+	return nil
+}
+
+func stupidContains(slice []string, search string) bool {
+	for _, item := range slice {
+		if item == search {
+			return true
+		}
+	}
+	return false
 }

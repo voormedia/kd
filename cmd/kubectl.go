@@ -10,10 +10,10 @@ import (
 )
 
 var cmdKubectl = &cobra.Command{
-	Use:   "kubectl <target> [commands ...]",
-	Short: "Invoke kubectl with project context and namespace",
-	Args:  cobra.MinimumNArgs(1),
-	// Aliases: []string{"ctl"},
+	Use:     "kubectl <target> [commands ...]",
+	Short:   "Invoke kubectl with project context and namespace",
+	Args:    cobra.MinimumNArgs(1),
+	Aliases: []string{"ctl"},
 
 	Long: `Invokes kubectl with the project context and namespace defined by the given
 target. This ensures you always send commands to the correct cluster, with the
@@ -25,8 +25,19 @@ This is meant to be used as a replacement for invoking kubectl directly.`,
 
 	DisableFlagParsing: true,
 
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if conf, err := config.Load(); err != nil {
+			cmd.ValidArgs = conf.TargetNames()
+		}
+	},
+
 	Run: func(_ *cobra.Command, args []string) {
-		tgt, err := config.ResolveTargetName(args[0])
+		conf, err := config.Load()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		tgt, err := conf.ResolveTarget(args[0])
 		if err != nil {
 			log.Fatal(err)
 		}

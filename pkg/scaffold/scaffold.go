@@ -219,11 +219,13 @@ apps:
 # List of available deployment targets
 targets:
 - name: acceptance
+  alias: acc
   context: {{.Context}}
   namespace: {{.Customer}}-acc
   path: config/deploy/acceptance
 
 - name: production
+  alias: prd
   context: {{.Context}}
   namespace: {{.Customer}}-prd
   path: config/deploy/production

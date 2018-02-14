@@ -1,10 +1,90 @@
 package config
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestLoad(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+
+	fs.WriteFile("kdeploy.conf", []byte(strings.Join([]string{
+		"# Private docker registry to push images to\n",
+		"registry: eu.gcr.io/project-123456/a-customer-name\n",
+		"\n",
+		"# List of apps to build\n",
+		"apps:\n",
+		"- name: my-website\n",
+		"  path: .\n",
+		"- name: other-app\n",
+		"  path: apps/other-app\n",
+		"  root: apps\n",
+		"  preBuild: script/foo.sh\n",
+		"\n",
+		"# List of available deployment targets\n",
+		"targets:\n",
+		"- name: acceptance\n",
+		"  alias: acc\n",
+		"  context: cluster_Context\n",
+		"  namespace: a-customer-name-acc\n",
+		"  path: config/deploy/acceptance\n",
+		"\n",
+		"- name: production\n",
+		"  context: cluster_Context\n",
+		"  namespace: a-customer-name-prd\n",
+		"  path: config/deploy/production\n",
+	}, "")), 0644)
+
+	conf, err := loadFromFs(fs)
+	assert.Nil(t, err)
+
+	expected := &Config{
+		Registry: "eu.gcr.io/project-123456/a-customer-name",
+		Apps: []App{{
+			Name: "my-website",
+			Path: ".",
+			Root: "",
+		}, {
+			Name:     "other-app",
+			Path:     "apps/other-app",
+			Root:     "apps",
+			PreBuild: "script/foo.sh",
+		}},
+		Targets: []Target{{
+			Name:      "acceptance",
+			Alias:     []string{"acc"},
+			Context:   "cluster_Context",
+			Namespace: "a-customer-name-acc",
+			Path:      "config/deploy/acceptance",
+		}, {
+			Name:      "production",
+			Context:   "cluster_Context",
+			Namespace: "a-customer-name-prd",
+			Path:      "config/deploy/production",
+		}},
+	}
+
+	assert.Equal(t, expected, conf)
+}
+
+func TestLoadError(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("kdeploy.conf", []byte("Bad file format"), 0644)
+
+	conf, err := loadFromFs(fs)
+	assert.Nil(t, conf)
+	assert.Equal(t, "Config error: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `Bad fil...` into config.Config", err.Error())
+}
+
+func TestLoadMissing(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	conf, err := loadFromFs(fs)
+	assert.Nil(t, conf)
+	assert.Equal(t, "Config error: open kdeploy.conf: file does not exist", err.Error())
+}
 
 func TestRepositoryWithTag(t *testing.T) {
 	app := &ResolvedApp{
@@ -97,7 +177,23 @@ func TestResolveMissingApp(t *testing.T) {
 	assert.Equal(t, "Unknown app 'bar'", err.Error())
 }
 
-func TestResolveApps(t *testing.T) {
+func TestResolveDefaultAppForSingle(t *testing.T) {
+	conf := &Config{
+		Registry: "my.registry.com",
+		Apps: []App{{
+			Name: "foo",
+			Path: "apps/foo",
+			Root: "",
+		}},
+	}
+
+	app, err := conf.ResolveApp("")
+	assert.Nil(t, err)
+	assert.Equal(t, "latest", app.Tag)
+	assert.Equal(t, "my.registry.com/foo", app.Repository())
+}
+
+func TestResolveDefaultAppForMultiple(t *testing.T) {
 	conf := &Config{
 		Registry: "my.registry.com",
 		Apps: []App{{
@@ -111,8 +207,37 @@ func TestResolveApps(t *testing.T) {
 		}},
 	}
 
-	apps := conf.ResolveApps()
-	assert.Equal(t, 2, len(apps))
+	app, err := conf.ResolveApp("")
+	assert.Nil(t, app)
+	assert.Equal(t, "Selecting default requires exactly 1 app (found 2 apps)", err.Error())
+}
+
+func TestResolveDefaultAppForNone(t *testing.T) {
+	conf := &Config{
+		Registry: "my.registry.com",
+		Apps:     []App{},
+	}
+
+	app, err := conf.ResolveApp("")
+	assert.Nil(t, app)
+	assert.Equal(t, "Selecting default requires exactly 1 app (found 0 apps)", err.Error())
+}
+
+func TestResolveExistingTargetAlias(t *testing.T) {
+	conf := &Config{
+		Registry: "my.registry.com",
+		Targets: []Target{{
+			Name:      "acc",
+			Alias:     []string{"test", "ac"},
+			Context:   "cluster",
+			Namespace: "acc",
+			Path:      "config/deploy/acc",
+		}},
+	}
+
+	tgt, err := conf.ResolveTarget("ac")
+	assert.Nil(t, err)
+	assert.Equal(t, "acc", tgt.Namespace)
 }
 
 func TestResolveExistingTarget(t *testing.T) {

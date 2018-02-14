@@ -15,50 +15,47 @@ import (
 	kutil "k8s.io/kubectl/pkg/kinflate/util"
 )
 
-func Run(verbose bool, log *util.Logger, apps []*config.ResolvedApp, target *config.ResolvedTarget) error {
-	for _, app := range apps {
-		log.Note("Retrieving application image", app.Name+":"+app.Tag)
-		img, err := getImage(app.Repository())
-		if err != nil {
-			return err
-		}
-
-		log.Note("Applying configuration")
-
-		manifest, err := outil.LoadFromManifestPath(filepath.Join(app.Path, target.Path))
-		if err != nil {
-			return err
-		}
-
-		res, err := kutil.Encode(manifest)
-		if err != nil {
-			return err
-		}
-
-		buf := bytes.NewBuffer(res)
-
-		/* HACK to set deployment image. */
-		buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("image: "+app.Name), []byte("image: "+img), -1))
-
-		/* HACK to remove empty annotations so that kubectl apply does not
-		   incorrectly believe that a configuration has been made. */
-		buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("annotations: {}\n"), []byte("\n"), -1))
-
-		// os.Stdout.Write(buf.Bytes())
-		err = kubectl.Apply(target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
-		if err != nil {
-			return err
-		}
-
-		log.Note("Tagging deployed image")
-		err = tagImage(img, app.TaggedRepository(target.Name))
-		if err != nil {
-			return err
-		}
-
-		log.Success("Successfully deployed", app.Repository())
+func Run(verbose bool, log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarget) error {
+	log.Note("Retrieving application image", app.Name+":"+app.Tag)
+	img, err := getImage(app.Repository())
+	if err != nil {
+		return err
 	}
 
+	log.Note("Applying configuration")
+
+	manifest, err := outil.LoadFromManifestPath(filepath.Join(app.Path, target.Path))
+	if err != nil {
+		return err
+	}
+
+	res, err := kutil.Encode(manifest)
+	if err != nil {
+		return err
+	}
+
+	buf := bytes.NewBuffer(res)
+
+	/* HACK to set deployment image. */
+	buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("image: "+app.Name), []byte("image: "+img), -1))
+
+	/* HACK to remove empty annotations so that kubectl apply does not
+	   incorrectly believe that a configuration has been made. */
+	buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("annotations: {}\n"), []byte("\n"), -1))
+
+	// os.Stdout.Write(buf.Bytes())
+	err = kubectl.Apply(target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
+	if err != nil {
+		return err
+	}
+
+	log.Note("Tagging deployed image")
+	err = tagImage(img, app.TaggedRepository(target.Name))
+	if err != nil {
+		return err
+	}
+
+	log.Success("Successfully deployed", app.Repository())
 	return nil
 }
 
