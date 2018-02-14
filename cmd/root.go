@@ -10,7 +10,7 @@ var log = util.NewLogger("kd")
 var cmdRoot = &cobra.Command{
 	Use:     "kd",
 	Short:   "Build and deploy apps to k8s cluster",
-	Version: "1.1.3",
+	Version: "1.1.4",
 }
 
 var verbose bool
