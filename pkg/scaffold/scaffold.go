@@ -319,6 +319,10 @@ metadata:
   name: {{.Name}}
 
 spec:
+  selector:
+    matchLabels:
+      app: {{.Name}}
+
   revisionHistoryLimit: 5
   minReadySeconds: 5
 

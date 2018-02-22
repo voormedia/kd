@@ -39,12 +39,12 @@ target to which it was deployed.`,
 			name = args[0]
 		}
 
-		app, err := conf.ResolveApp(name)
+		tgt, err := conf.ResolveTarget(args[len(args)-1])
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		tgt, err := conf.ResolveTarget(args[len(args)-1])
+		app, err := conf.ResolveApp(name)
 		if err != nil {
 			log.Fatal(err)
 		}
