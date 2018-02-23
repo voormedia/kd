@@ -119,14 +119,6 @@ func buildImage(verbose bool, app *config.ResolvedApp) error {
 }
 
 func pushImage(verbose bool, app *config.ResolvedApp) error {
-	/* TODO: Figure out how to directly integrate with gcloud docker tool? */
-	cmd := exec.Command("gcloud", "docker", "--authorize-only")
-	var out bytes.Buffer
-	cmd.Stderr = &out
-	if err := cmd.Run(); err != nil {
-		return errors.Errorf("Failed to authorize: %s", out.String())
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/docker/distribution/reference"
 	"github.com/docker/docker/api/types"
 	registrytypes "github.com/docker/docker/api/types/registry"
-	"github.com/pkg/errors"
 	"github.com/voormedia/kd/pkg/config"
 	"github.com/voormedia/kd/pkg/kubectl"
 	"github.com/voormedia/kd/pkg/util"
@@ -46,13 +44,6 @@ func Run(verbose bool, log *util.Logger, app *config.ResolvedApp, target *config
 }
 
 func getImage(location string) (manifesttypes.ImageManifest, error) {
-	cmd := exec.Command("gcloud", "docker", "--authorize-only")
-	var out bytes.Buffer
-	cmd.Stderr = &out
-	if err := cmd.Run(); err != nil {
-		return manifesttypes.ImageManifest{}, errors.Errorf("Failed to authorize: %s", out.String())
-	}
-
 	ref, err := reference.ParseNormalizedNamed(location)
 	if err != nil {
 		return manifesttypes.ImageManifest{}, err
