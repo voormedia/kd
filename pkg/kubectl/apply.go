@@ -125,7 +125,7 @@ func Apply(context string, namespace string, in io.Reader, out, errOut io.Writer
 		Schema(schema).
 		ContinueOnError().
 		NamespaceParam(namespace).RequireNamespace().
-		Stream(in, "kdeploy").
+		Stream(in, "stdin").
 		LabelSelectorParam(options.Selector).
 		IncludeUninitialized(includeUninitialized).
 		Flatten().
@@ -162,13 +162,8 @@ func Apply(context string, namespace string, in io.Reader, out, errOut io.Writer
 			visitedNamespaces.Insert(info.Namespace)
 		}
 
-		// Add change-cause annotation to resource info if it should be recorded
-		// if cmdutil.ShouldRecord(cmd, info) {
-		// recordInObj := info.Object
-		// FIXME
-		// if err := cmdutil.RecordChangeCause(recordInObj, f.Command(cmd, false)); err != nil {
-		// 	glog.V(4).Infof("error recording current command: %v", err)
-		// }
+		// if err := cmdutil.RecordChangeCause(info.Object, "kd deploy"); err != nil {
+		// 	// FIXME ???
 		// }
 
 		// Get the modified configuration of the object. Embed the result
