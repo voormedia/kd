@@ -49,7 +49,8 @@ func getImage(location string) (manifesttypes.ImageManifest, error) {
 		return manifesttypes.ImageManifest{}, err
 	}
 
-	return newClient().GetManifest(context.Background(), ref)
+	ctx := context.Background()
+	return newClient().GetManifest(ctx, ref)
 }
 
 func apply(app *config.ResolvedApp, target *config.ResolvedTarget, img manifesttypes.ImageManifest) error {
@@ -63,15 +64,9 @@ func apply(app *config.ResolvedApp, target *config.ResolvedTarget, img manifestt
 		return err
 	}
 
-	buf := bytes.NewBuffer(res)
-
 	/* HACK to set deployment image. */
-	imgUrl := app.RepositoryWithDigest(img.Digest.String())
-	buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("image: "+app.Name), []byte("image: "+imgUrl), -1))
-
-	/* HACK to remove empty annotations so that kubectl apply does not
-	   incorrectly believe that a configuration has been made. */
-	buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("annotations: {}\n"), []byte("\n"), -1))
+	url := app.RepositoryWithDigest(img.Digest.String())
+	buf := bytes.NewBuffer(bytes.Replace(res, []byte(" image: "+app.Name), []byte(" image: "+url), -1))
 
 	// os.Stdout.Write(buf.Bytes())
 	return kubectl.Apply(target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
@@ -83,7 +78,8 @@ func tagImage(manifest manifesttypes.ImageManifest, location string) error {
 		return err
 	}
 
-	_, err = newClient().PutManifest(context.Background(), ref, manifest)
+	ctx := context.Background()
+	_, err = newClient().PutManifest(ctx, ref, manifest)
 	return err
 }
 

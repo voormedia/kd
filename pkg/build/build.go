@@ -52,8 +52,7 @@ func Run(verbose bool, log *util.Logger, app *config.ResolvedApp) error {
 }
 
 func buildImage(verbose bool, app *config.ResolvedApp) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := context.Background()
 
 	cli, err := client.NewClient(client.DefaultDockerHost, "1.35", nil, nil)
 	if err != nil {
@@ -119,8 +118,7 @@ func buildImage(verbose bool, app *config.ResolvedApp) error {
 }
 
 func pushImage(verbose bool, app *config.ResolvedApp) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := context.Background()
 
 	cli, err := client.NewClient(client.DefaultDockerHost, "1.35", nil, nil)
 	if err != nil {
