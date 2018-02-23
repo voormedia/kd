@@ -9,13 +9,13 @@
 
 ### Option 1 – prebuilt
 1. Ensure you have `~/.bin` directory or similar that is in your `$PATH`
-2. `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_darwin_amd64-1.4.3.zip | funzip > ~/.bin/docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
-3. `curl -L https://github.com/voormedia/kd/releases/download/v1.1.7/darwin_amd64_kd -o ~/.bin/kd && chmod +x ~/.bin/kd`
+2. Install KD: `curl -L https://github.com/voormedia/kd/releases/download/v1.1.7/darwin_amd64_kd -o ~/.bin/kd && chmod +x ~/.bin/kd`
+3. Install Google Cloud credential helper: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_darwin_amd64-1.4.3.zip | funzip > ~/.bin/docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
 
 ### Option 2 – from source
 1. Make sure you have a working `go` installation
-2. `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_darwin_amd64-1.4.3.zip | funzip > ~/.bin/docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
-3. `go install github.com/voormedia/kd`
+2. Build KD from source: `go install github.com/voormedia/kd`
+3. Install Google Cloud credential helper: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_darwin_amd64-1.4.3.zip | funzip > ~/.bin/docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
 
 
 ## Best practices for deploying
