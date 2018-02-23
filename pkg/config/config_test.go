@@ -111,7 +111,7 @@ func TestRepositoryWithDefaultTag(t *testing.T) {
 		Registry: "my.registry.com",
 	}
 
-	assert.Equal(t, "my.registry.com/foo", app.Repository())
+	assert.Equal(t, "my.registry.com/foo:latest", app.Repository())
 }
 
 func TestResolveExistingApp(t *testing.T) {
@@ -159,7 +159,7 @@ func TestResolveExistingAppExplicitLatest(t *testing.T) {
 	app, err := conf.ResolveApp("foo:latest")
 	assert.Nil(t, err)
 	assert.Equal(t, "latest", app.Tag)
-	assert.Equal(t, "my.registry.com/foo", app.Repository())
+	assert.Equal(t, "my.registry.com/foo:latest", app.Repository())
 }
 
 func TestResolveMissingApp(t *testing.T) {
@@ -190,7 +190,7 @@ func TestResolveDefaultAppForSingle(t *testing.T) {
 	app, err := conf.ResolveApp("")
 	assert.Nil(t, err)
 	assert.Equal(t, "latest", app.Tag)
-	assert.Equal(t, "my.registry.com/foo", app.Repository())
+	assert.Equal(t, "my.registry.com/foo:latest", app.Repository())
 }
 
 func TestResolveDefaultAppForMultiple(t *testing.T) {

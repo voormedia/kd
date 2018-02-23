@@ -22,6 +22,35 @@ import (
 	"github.com/voormedia/kd/pkg/util"
 )
 
+func Run(verbose bool, log *util.Logger, app *config.ResolvedApp) error {
+	if app.PreBuild != "" {
+		cmd := exec.Command("sh", "-c", app.PreBuild)
+		if err := cmd.Run(); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	log.Note("Building", app.Name)
+	if err := buildImage(verbose, app); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Note("Pushing", app.Name+":"+app.Tag)
+	if err := pushImage(verbose, app); err != nil {
+		log.Fatal(err)
+	}
+
+	if app.PostBuild != "" {
+		cmd := exec.Command("sh", "-c", app.PostBuild)
+		if err := cmd.Run(); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	log.Success("Successfully built", app.Repository())
+	return nil
+}
+
 func buildImage(verbose bool, app *config.ResolvedApp) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -140,34 +169,4 @@ func pushImage(verbose bool, app *config.ResolvedApp) error {
 	defer res.Close()
 
 	return jsonmessage.DisplayJSONMessagesStream(res, os.Stderr, os.Stderr.Fd(), true, nil)
-}
-
-func Run(verbose bool, log *util.Logger, app *config.ResolvedApp) error {
-	log.Note("Building", app.Name)
-
-	if app.PreBuild != "" {
-		cmd := exec.Command("sh", "-c", app.PreBuild)
-		if err := cmd.Run(); err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	if err := buildImage(verbose, app); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Note("Pushing", app.Name)
-	if err := pushImage(verbose, app); err != nil {
-		log.Fatal(err)
-	}
-
-	if app.PostBuild != "" {
-		cmd := exec.Command("sh", "-c", app.PostBuild)
-		if err := cmd.Run(); err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	log.Success("Successfully built", app.Repository())
-	return nil
 }

@@ -108,15 +108,15 @@ func (conf *Config) ResolveTarget(name string) (*ResolvedTarget, error) {
 }
 
 func (app *ResolvedApp) Repository() string {
-	return app.TaggedRepository(app.Tag)
+	return app.RepositoryWithTag(app.Tag)
 }
 
-func (app *ResolvedApp) TaggedRepository(tag string) string {
-	reg := app.Registry + "/" + app.Name
-	if tag != DefaultTag {
-		reg = reg + ":" + tag
-	}
-	return reg
+func (app *ResolvedApp) RepositoryWithTag(tag string) string {
+	return app.Registry + "/" + app.Name + ":" + tag
+}
+
+func (app *ResolvedApp) RepositoryWithDigest(digest string) string {
+	return app.Registry + "/" + app.Name + "@" + digest
 }
 
 func (a *StringArray) UnmarshalYAML(unmarshal func(interface{}) error) error {

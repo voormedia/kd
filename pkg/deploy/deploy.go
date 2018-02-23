@@ -2,11 +2,18 @@ package deploy
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
+	"runtime"
 
+	cliconfig "github.com/docker/cli/cli/config"
+	manifesttypes "github.com/docker/cli/cli/manifest/types"
+	"github.com/docker/cli/cli/registry/client"
+	"github.com/docker/distribution/reference"
+	"github.com/docker/docker/api/types"
+	registrytypes "github.com/docker/docker/api/types/registry"
 	"github.com/pkg/errors"
 	"github.com/voormedia/kd/pkg/config"
 	"github.com/voormedia/kd/pkg/kubectl"
@@ -16,14 +23,45 @@ import (
 )
 
 func Run(verbose bool, log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarget) error {
-	log.Note("Retrieving application image", app.Name+":"+app.Tag)
+	log.Note("Retrieving image", app.Name+":"+app.Tag)
 	img, err := getImage(app.Repository())
 	if err != nil {
 		return err
 	}
 
 	log.Note("Applying configuration")
+	err = apply(app, target, img)
+	if err != nil {
+		return err
+	}
 
+	log.Note("Tagging image", app.Name+":"+target.Name)
+	err = tagImage(img, app.RepositoryWithTag(target.Name))
+	if err != nil {
+		return err
+	}
+
+	log.Success("Successfully deployed", app.Repository(), "to", target.Name)
+	return nil
+}
+
+func getImage(location string) (manifesttypes.ImageManifest, error) {
+	cmd := exec.Command("gcloud", "docker", "--authorize-only")
+	var out bytes.Buffer
+	cmd.Stderr = &out
+	if err := cmd.Run(); err != nil {
+		return manifesttypes.ImageManifest{}, errors.Errorf("Failed to authorize: %s", out.String())
+	}
+
+	ref, err := reference.ParseNormalizedNamed(location)
+	if err != nil {
+		return manifesttypes.ImageManifest{}, err
+	}
+
+	return newClient().GetManifest(context.Background(), ref)
+}
+
+func apply(app *config.ResolvedApp, target *config.ResolvedTarget, img manifesttypes.ImageManifest) error {
 	manifest, err := outil.LoadFromManifestPath(filepath.Join(app.Path, target.Path))
 	if err != nil {
 		return err
@@ -37,55 +75,35 @@ func Run(verbose bool, log *util.Logger, app *config.ResolvedApp, target *config
 	buf := bytes.NewBuffer(res)
 
 	/* HACK to set deployment image. */
-	buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("image: "+app.Name), []byte("image: "+img), -1))
+	imgUrl := app.RepositoryWithDigest(img.Digest.String())
+	buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("image: "+app.Name), []byte("image: "+imgUrl), -1))
 
 	/* HACK to remove empty annotations so that kubectl apply does not
 	   incorrectly believe that a configuration has been made. */
 	buf = bytes.NewBuffer(bytes.Replace(buf.Bytes(), []byte("annotations: {}\n"), []byte("\n"), -1))
 
 	// os.Stdout.Write(buf.Bytes())
-	err = kubectl.Apply(target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
+	return kubectl.Apply(target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
+}
+
+func tagImage(manifest manifesttypes.ImageManifest, location string) error {
+	ref, err := reference.ParseNormalizedNamed(location)
 	if err != nil {
 		return err
 	}
 
-	log.Note("Tagging deployed image")
-	err = tagImage(img, app.TaggedRepository(target.Name))
-	if err != nil {
-		return err
-	}
-
-	log.Success("Successfully deployed", app.Repository())
-	return nil
+	_, err = newClient().PutManifest(context.Background(), ref, manifest)
+	return err
 }
 
-func getImage(image string) (string, error) {
-	cmd := exec.Command("gcloud", "container", "images", "describe", image,
-		"--format=value(image_summary.fully_qualified_digest)",
-	)
-
-	var out bytes.Buffer
-	var errOut bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &errOut
-	if err := cmd.Run(); err != nil {
-		return "", errors.Errorf("Failed to get latest image: %s", errOut.String())
-	}
-
-	return strings.TrimSpace(out.String()), nil
+func newClient() client.RegistryClient {
+	return client.NewRegistryClient(resolver, agent, false)
 }
 
-func tagImage(image string, tag string) error {
-	cmd := exec.Command("gcloud", "container", "images", "add-tag",
-		"--quiet",
-		image, tag,
-	)
-
-	var errOut bytes.Buffer
-	cmd.Stderr = &errOut
-	if err := cmd.Run(); err != nil {
-		return errors.Errorf("Failed to tag image: %s", errOut.String())
-	}
-
-	return nil
+func resolver(ctx context.Context, index *registrytypes.IndexInfo) types.AuthConfig {
+	conf := cliconfig.LoadDefaultConfigFile(os.Stderr)
+	authConfig, _ := conf.GetAuthConfig(index.Name)
+	return authConfig
 }
+
+const agent = "KD (" + runtime.GOOS + ")"
