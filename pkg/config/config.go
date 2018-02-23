@@ -59,19 +59,16 @@ func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
 		tag = parts[1]
 	}
 
-	if name == "" {
-		if len(conf.Apps) == 1 {
-			return &ResolvedApp{
-				App:      conf.Apps[0],
-				Tag:      tag,
-				Registry: conf.Registry,
-			}, nil
-		}
-
+	if name == "" && len(conf.Apps) != 1 {
 		return nil, fmt.Errorf("Selecting default requires exactly 1 application (%d configured)", len(conf.Apps))
 	} else {
 		for _, app := range conf.Apps {
-			if app.Name == name {
+			if app.Name == "" {
+				parts := strings.Split(app.Path, "/")
+				app.Name = parts[len(parts)-1]
+			}
+
+			if name == "" || name == app.Name {
 				return &ResolvedApp{
 					App:      app,
 					Tag:      tag,
