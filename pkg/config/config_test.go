@@ -1,6 +1,7 @@
 package config
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 
@@ -12,6 +13,9 @@ func TestLoad(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	fs.WriteFile("kdeploy.conf", []byte(strings.Join([]string{
+		"# Check version compatibility with kd\n",
+		"version: " + strconv.FormatUint(uint64(LatestVersion), 10) + "\n",
+		"\n",
 		"# Private docker registry to push images to\n",
 		"registry: eu.gcr.io/project-123456/a-customer-name\n",
 		"\n",
@@ -42,7 +46,8 @@ func TestLoad(t *testing.T) {
 	assert.Nil(t, err)
 
 	expected := &Config{
-		Registry: "eu.gcr.io/project-123456/a-customer-name",
+		ApiVersion: LatestVersion,
+		Registry:   "eu.gcr.io/project-123456/a-customer-name",
 		Apps: []App{{
 			Name: "my-website",
 			Path: ".",
@@ -84,6 +89,15 @@ func TestLoadMissing(t *testing.T) {
 	conf, err := loadFromFs(fs)
 	assert.Nil(t, conf)
 	assert.Equal(t, "Config error: open kdeploy.conf: file does not exist", err.Error())
+}
+
+func TestLoadUnknownVersion(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("kdeploy.conf", []byte("version: 999999"), 0644)
+
+	conf, err := loadFromFs(fs)
+	assert.Nil(t, conf)
+	assert.Equal(t, "Unsupported configuration version 999999, please update kd!", err.Error())
 }
 
 func TestRepositoryWithTag(t *testing.T) {

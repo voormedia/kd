@@ -33,6 +33,7 @@ func TestFindApps(t *testing.T) {
 
 func TestWriteConfig(t *testing.T) {
 	details := &details{
+		ApiVersion: 1,
 		Apps: []app{{
 			Name: "my-website",
 			Path: ".",
@@ -51,6 +52,9 @@ func TestWriteConfig(t *testing.T) {
 	kdeploy, err := fs.ReadFile("kdeploy.conf")
 	assert.Nil(t, err)
 	assert.Equal(t, strings.Join([]string{
+		"# Check version compatibility with kd\n",
+		"version: 1\n",
+		"\n",
 		"# Private docker registry to push images to\n",
 		"registry: eu.gcr.io/project-123456/a-customer-name\n",
 		"\n",

@@ -58,10 +58,11 @@ type appEnv struct {
 }
 
 type details struct {
-	Customer string
-	Project  string
-	Context  string
-	Apps     []app
+	ApiVersion uint
+	Customer   string
+	Project    string
+	Context    string
+	Apps       []app
 }
 
 func (d details) appNames() (names []string) {
@@ -88,8 +89,10 @@ func requestDetails(afs *afero.Afero, log *util.Logger, in io.Reader, out io.Wri
 		return nil, err
 	}
 
-	data := &details{}
-	data.Apps = apps
+	data := &details{
+		ApiVersion: config.LatestVersion,
+		Apps:       apps,
+	}
 
 	if len(apps) == 0 {
 		log.Warn("Could not find any apps; are you missing a Dockerfile?")
@@ -206,7 +209,10 @@ func findApps(afs *afero.Afero) ([]app, error) {
 }
 
 var kdeploy = template.Must(template.New(config.ConfigName).Parse(
-	`# Private docker registry to push images to
+	`# Check version compatibility with kd
+version: {{.ApiVersion}}
+
+# Private docker registry to push images to
 registry: eu.gcr.io/{{.Project}}/{{.Customer}}
 
 # List of apps to build

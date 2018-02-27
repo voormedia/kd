@@ -1,5 +1,9 @@
 package config
 
+/* Maximum configuration version accepted by this version of kd.
+   Increment this version on API incompatible changes. */
+const LatestVersion uint = 1
+
 type StringArray []string
 
 type App struct {
@@ -19,7 +23,8 @@ type Target struct {
 }
 
 type Config struct {
-	Registry string   `yaml:"registry,omitempty"`
-	Apps     []App    `yaml:"apps,omitempty"`
-	Targets  []Target `yaml:"targets,omitempty"`
+	ApiVersion uint     `yaml:"version,omitempty"`
+	Registry   string   `yaml:"registry,omitempty"`
+	Apps       []App    `yaml:"apps,omitempty"`
+	Targets    []Target `yaml:"targets,omitempty"`
 }

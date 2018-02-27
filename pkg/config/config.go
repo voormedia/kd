@@ -32,12 +32,16 @@ func loadFromFs(afs *afero.Afero) (*Config, error) {
 		return nil, errors.Wrap(err, "Config error")
 	}
 
-	var pkg Config
-	if err := yaml.UnmarshalStrict(bytes, &pkg); err != nil {
+	var conf Config
+	if err := yaml.UnmarshalStrict(bytes, &conf); err != nil {
 		return nil, errors.Wrap(err, "Config error")
 	}
 
-	return &pkg, nil
+	if conf.ApiVersion > LatestVersion {
+		return nil, errors.Errorf("Unsupported configuration version %d, please update kd!", conf.ApiVersion)
+	}
+
+	return &conf, nil
 }
 
 func (conf *Config) AppNames() []string {
