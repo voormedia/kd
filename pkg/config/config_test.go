@@ -105,7 +105,6 @@ func TestRepositoryWithTag(t *testing.T) {
 		App: App{
 			Name: "foo",
 			Path: "apps/foo",
-			Root: ".",
 		},
 		Tag:      "bar",
 		Registry: "my.registry.com",
@@ -119,13 +118,36 @@ func TestRepositoryWithDefaultTag(t *testing.T) {
 		App: App{
 			Name: "foo",
 			Path: "apps/foo",
-			Root: ".",
 		},
 		Tag:      "latest",
 		Registry: "my.registry.com",
 	}
 
 	assert.Equal(t, "my.registry.com/foo:latest", app.Repository())
+}
+
+func TestRepositoryWithSpecificTag(t *testing.T) {
+	app := &ResolvedApp{
+		App: App{
+			Name: "foo",
+			Path: "apps/foo",
+		},
+		Registry: "my.registry.com",
+	}
+
+	assert.Equal(t, "my.registry.com/foo:my-tag", app.RepositoryWithTag("my-tag"))
+}
+
+func TestRepositoryWithSpecificDigest(t *testing.T) {
+	app := &ResolvedApp{
+		App: App{
+			Name: "foo",
+			Path: "apps/foo",
+		},
+		Registry: "my.registry.com",
+	}
+
+	assert.Equal(t, "my.registry.com/foo@sha256:012345abcdef", app.RepositoryWithDigest("sha256:012345abcdef"))
 }
 
 func TestResolveExistingApp(t *testing.T) {
