@@ -5,17 +5,18 @@ import (
 	"github.com/voormedia/kd/pkg/util"
 )
 
+var version = "master"
 var log = util.NewLogger("kd")
-
-var cmdRoot = &cobra.Command{
-	Use:     "kd",
-	Short:   "Build and deploy apps to k8s cluster",
-	Version: "1.2.2",
-}
 
 var verbose bool
 
+var cmdRoot = &cobra.Command{
+	Use:   "kd",
+	Short: "Build and deploy apps to k8s cluster",
+}
+
 func init() {
+	cmdRoot.Version = version
 	cmdRoot.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 }
 
