@@ -52,14 +52,11 @@ func loadFromFs(afs *afero.Afero) (*Config, error) {
 	return &conf, nil
 }
 
-func (conf *Config) AppNames() []string {
-	names := make([]string, len(conf.Apps))
-
-	for i, app := range conf.Apps {
-		names[i] = app.Name
+func (conf *Config) AppNames() (names []string) {
+	for _, app := range conf.Apps {
+		names = append(names, app.Name)
 	}
-
-	return names
+	return
 }
 
 func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
@@ -88,14 +85,11 @@ func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
 	}
 }
 
-func (conf *Config) TargetNames() []string {
-	names := make([]string, len(conf.Targets))
-
-	for i, tgt := range conf.Targets {
-		names[i] = tgt.Name
+func (conf *Config) TargetNames() (names []string) {
+	for _, tgt := range conf.Targets {
+		names = append(names, tgt.Name)
 	}
-
-	return names
+	return
 }
 
 func (conf *Config) ResolveTarget(name string) (*ResolvedTarget, error) {
