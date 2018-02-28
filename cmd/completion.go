@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -15,7 +16,7 @@ var customCompletion = `__kd_parse_list()
 }
 
 __custom_func() {
-case ${last_command} in
+    case ${last_command} in
         kd_build)
             if [[ ${#nouns[@]} -eq 0 ]]; then
                 __kd_parse_list "apps"
@@ -67,15 +68,22 @@ This can be done by sourcing it from .bash_profile.`,
 	Example: "  kd completion bash > $(brew --prefix)/etc/bash_completion.d/kd",
 
 	Run: func(cmd *cobra.Command, args []string) {
+		var buf bytes.Buffer
+
 		switch args[0] {
 		case "bash":
-			if err := cmd.Parent().GenBashCompletion(os.Stdout); err != nil {
+			if err := cmd.Parent().GenBashCompletion(&buf); err != nil {
 				log.Fatal(err)
 			}
+
+			os.Stdout.Write(bytes.Replace(buf.Bytes(), []byte("__custom_func"), []byte("__kd_custom_func"), -1))
+
 		case "zsh":
-			if err := cmd.Parent().GenZshCompletion(os.Stdout); err != nil {
+			if err := cmd.Parent().GenZshCompletion(&buf); err != nil {
 				log.Fatal(err)
 			}
+
+			os.Stdout.Write(buf.Bytes())
 		}
 	},
 }
