@@ -10,8 +10,9 @@ import (
 )
 
 var cmdKubectl = &cobra.Command{
-	Use:     "kubectl <target> [commands ...]",
-	Short:   "Invoke kubectl with project context and namespace",
+	Use:   "kubectl <target> [commands ...]",
+	Short: "Invoke kubectl with project context and namespace",
+	DisableFlagsInUseLine: true,
 	Args:    cobra.MinimumNArgs(1),
 	Aliases: []string{"ctl"},
 

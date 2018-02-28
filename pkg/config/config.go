@@ -41,6 +41,14 @@ func loadFromFs(afs *afero.Afero) (*Config, error) {
 		return nil, errors.Errorf("Unsupported configuration version %d, please update kd!", conf.ApiVersion)
 	}
 
+	for i, _ := range conf.Apps {
+		app := &conf.Apps[i]
+		if app.Name == "" {
+			parts := strings.Split(app.Path, "/")
+			app.Name = parts[len(parts)-1]
+		}
+	}
+
 	return &conf, nil
 }
 
@@ -67,11 +75,6 @@ func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
 		return nil, fmt.Errorf("Selecting default requires exactly 1 application (%d configured)", len(conf.Apps))
 	} else {
 		for _, app := range conf.Apps {
-			if app.Name == "" {
-				parts := strings.Split(app.Path, "/")
-				app.Name = parts[len(parts)-1]
-			}
-
 			if name == "" || name == app.Name {
 				return &ResolvedApp{
 					App:      app,

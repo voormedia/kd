@@ -23,8 +23,7 @@ func TestLoad(t *testing.T) {
 		"apps:\n",
 		"- name: my-website\n",
 		"  path: .\n",
-		"- name: other-app\n",
-		"  path: apps/other-app\n",
+		"- path: apps/other-app\n",
 		"  root: apps\n",
 		"  preBuild: script/foo.sh\n",
 		"\n",
@@ -98,6 +97,34 @@ func TestLoadUnknownVersion(t *testing.T) {
 	conf, err := loadFromFs(fs)
 	assert.Nil(t, conf)
 	assert.Equal(t, "Unsupported configuration version 999999, please update kd!", err.Error())
+}
+
+func TestAppNames(t *testing.T) {
+	conf := &Config{
+		Apps: []App{{
+			Name: "one",
+		}, {
+			Name: "two",
+			Path: "apps/my-second-app",
+			Root: "apps",
+		}},
+	}
+
+	assert.Equal(t, []string{"one", "two"}, conf.AppNames())
+}
+
+func TestTargetNames(t *testing.T) {
+	conf := &Config{
+		Targets: []Target{{
+			Name:  "acceptance",
+			Alias: []string{"acc"},
+		}, {
+			Name:    "production",
+			Context: "cluster_Context",
+		}},
+	}
+
+	assert.Equal(t, []string{"acceptance", "production"}, conf.TargetNames())
 }
 
 func TestRepositoryWithTag(t *testing.T) {

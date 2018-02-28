@@ -7,8 +7,10 @@ import (
 )
 
 var cmdDeploy = &cobra.Command{
-	Use:     "deploy [app[:tag]] <target>",
-	Short:   "Configure and deploy an application to a cluster",
+	Use:   "deploy [app[:tag]] <target>",
+	Short: "Configure and deploy an application to a cluster",
+	DisableFlagsInUseLine: true,
+
 	Args:    cobra.RangeArgs(1, 2),
 	Aliases: []string{"dep"},
 

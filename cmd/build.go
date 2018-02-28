@@ -7,8 +7,11 @@ import (
 )
 
 var cmdBuild = &cobra.Command{
-	Use:     "build [app[:tag]]",
-	Short:   "Build container images for an application",
+	Use:   "build [app[:tag]]",
+	Short: "Build container images for an application",
+	DisableFlagsInUseLine:  true,
+	BashCompletionFunction: customCompletion,
+
 	Args:    cobra.RangeArgs(0, 1),
 	Aliases: []string{"bld"},
 

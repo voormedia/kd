@@ -13,6 +13,7 @@ var verbose bool
 var cmdRoot = &cobra.Command{
 	Use:   "kd",
 	Short: "Build and deploy apps to k8s cluster",
+	BashCompletionFunction: customCompletion,
 }
 
 func init() {
