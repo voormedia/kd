@@ -101,7 +101,7 @@ func parsePruneResources(mapper meta.RESTMapper, gvks []string) ([]pruneResource
 	return pruneResources, nil
 }
 
-func Apply(context string, namespace string, in io.Reader, out, errOut io.Writer, options *ApplyOptions) error {
+func Apply(verbose bool, context string, namespace string, in io.Reader, out, errOut io.Writer, options *ApplyOptions) error {
 	kubeconfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
 	loader := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
 	loadedConfig, err := loader.Load()
@@ -240,7 +240,10 @@ func Apply(context string, namespace string, in io.Reader, out, errOut io.Writer
 				visitedUids.Insert(string(uid))
 			}
 
-			// fmt.Println(string(patchBytes))
+			if verbose {
+				fmt.Println("Patch succeeded with result:", string(patchBytes))
+			}
+
 			if string(patchBytes) == "{}" {
 				count++
 				f.PrintSuccess(mapper, shortOutput, out, info.Mapping.Resource, info.Name, false, "unchanged")

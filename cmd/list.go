@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 	"github.com/voormedia/kd/pkg/config"
@@ -39,9 +41,27 @@ was found in the current directory.`,
 
 		switch args[0] {
 		case "targets":
-			fmt.Println(strings.Join(conf.TargetNames(), "\n"))
+			if verbose {
+				tw := tabwriter.NewWriter(os.Stdout, 10, 4, 3, ' ', 0)
+				fmt.Fprintf(tw, "NAME\tALIASES\tCONTEXT\tNAMESPACE\n")
+				for _, tgt := range conf.Targets {
+					fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", tgt.Name, strings.Join(tgt.Alias, ", "), tgt.Context, tgt.Namespace)
+				}
+				tw.Flush()
+			} else {
+				fmt.Println(strings.Join(conf.TargetNames(), "\n"))
+			}
 		case "apps":
-			fmt.Println(strings.Join(conf.AppNames(), "\n"))
+			if verbose {
+				tw := tabwriter.NewWriter(os.Stdout, 10, 4, 2, ' ', 0)
+				fmt.Fprintf(tw, "NAME\tPATH\tROOT\n")
+				for _, app := range conf.Apps {
+					fmt.Fprintf(tw, "%s\t%s\t%s\n", app.Name, app.Path, app.Root)
+				}
+				tw.Flush()
+			} else {
+				fmt.Println(strings.Join(conf.AppNames(), "\n"))
+			}
 		}
 	},
 }

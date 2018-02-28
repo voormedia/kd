@@ -59,10 +59,6 @@ func buildImage(verbose bool, app *config.ResolvedApp) error {
 		return err
 	}
 
-	if app.Root == "" {
-		app.Root = app.Path
-	}
-
 	dockerfile := filepath.Join(app.Path, build.DefaultDockerfileName)
 	dir, dockerfile, err := build.GetContextFromLocalDir(app.Root, dockerfile)
 	excludes, err := build.ReadDockerignore(dir)

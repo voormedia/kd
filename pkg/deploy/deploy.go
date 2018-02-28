@@ -28,7 +28,7 @@ func Run(verbose bool, log *util.Logger, app *config.ResolvedApp, target *config
 	}
 
 	log.Note("Applying configuration")
-	err = apply(app, target, img)
+	err = apply(verbose, app, target, img)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func getImage(location string) (manifesttypes.ImageManifest, error) {
 	return newClient().GetManifest(ctx, ref)
 }
 
-func apply(app *config.ResolvedApp, target *config.ResolvedTarget, img manifesttypes.ImageManifest) error {
+func apply(verbose bool, app *config.ResolvedApp, target *config.ResolvedTarget, img manifesttypes.ImageManifest) error {
 	manifest, err := outil.LoadFromManifestPath(filepath.Join(app.Path, target.Path))
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func apply(app *config.ResolvedApp, target *config.ResolvedTarget, img manifestt
 	buf := bytes.NewBuffer(bytes.Replace(res, []byte(" image: "+app.Name), []byte(" image: "+url), -1))
 
 	// os.Stdout.Write(buf.Bytes())
-	return kubectl.Apply(target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
+	return kubectl.Apply(verbose, target.Context, target.Namespace, buf, os.Stdout, os.Stderr, &kubectl.ApplyOptions{})
 }
 
 func tagImage(manifest manifesttypes.ImageManifest, location string) error {

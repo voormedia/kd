@@ -43,9 +43,14 @@ func loadFromFs(afs *afero.Afero) (*Config, error) {
 
 	for i, _ := range conf.Apps {
 		app := &conf.Apps[i]
+
 		if app.Name == "" {
 			parts := strings.Split(app.Path, "/")
 			app.Name = parts[len(parts)-1]
+		}
+
+		if app.Root == "" {
+			app.Root = app.Path
 		}
 	}
 

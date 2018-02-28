@@ -50,7 +50,7 @@ func TestLoad(t *testing.T) {
 		Apps: []App{{
 			Name: "my-website",
 			Path: ".",
-			Root: "",
+			Root: ".",
 		}, {
 			Name:     "other-app",
 			Path:     "apps/other-app",

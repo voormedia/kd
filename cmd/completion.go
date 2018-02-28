@@ -30,6 +30,12 @@ case ${last_command} in
             fi
             return
             ;;
+        kd_kubectl)
+            if [[ ${#nouns[@]} -eq 0 ]]; then
+                __kd_parse_list "targets"
+            fi
+            return
+            ;;
         *)
             ;;
     esac
