@@ -63,9 +63,9 @@ var cmdCompletion = &cobra.Command{
 
 	Long: `Output shell completion code for the specified shell (bash or zsh). The shell
 code must be evaluated to provide interactive completion of kd commands.
-This can be done by sourcing it from .bash_profile.`,
+This can be done by sourcing it from .bash_profile or .bashrc.`,
 
-	Example: "  kd completion bash > $(brew --prefix)/etc/bash_completion.d/kd",
+	Example: "  brew install bash-completion\n  echo 'source $(brew --prefix)/etc/bash_completion' >> ~/.bashrc\n  kd completion bash > $(brew --prefix)/etc/bash_completion.d/kd",
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var buf bytes.Buffer
