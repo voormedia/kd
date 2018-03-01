@@ -346,6 +346,10 @@ spec:
       containers:
       - name: {{.Name}}
 
+        # This will be extrapolated on deploy by kd to refer to the
+        # latest image that was pushed to the repository.
+        image: {{.Name}}
+
         ports:
         - containerPort: 80
           name: http
@@ -404,10 +408,6 @@ spec:
     spec:
       containers:
       - name: {{.Name}}
-
-        # This will be extrapolated on deploy by kd to refer to the
-        # latest image that was pushed to the repository.
-        image: {{.Name}}
 
         # Define environment variables specific to {{.Environment}}.
         env:
