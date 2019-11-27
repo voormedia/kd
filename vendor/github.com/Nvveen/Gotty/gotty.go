@@ -1,3 +1,8 @@
+// IMPORTANT: The Docker CLI package requires this, but there are several breaking
+// bugs present when running in Debian environments. This is a hack to fix the logic
+// but ideally we'd reference the actual fixed package instead (please look how to do that)
+// https://github.com/ijc/Gotty
+
 // Copyright 2012 Neal van Veen. All rights reserved.
 // Usage of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -8,10 +13,12 @@ package gotty
 // TODO add more concurrency to name lookup, look for more opportunities.
 
 import (
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"reflect"
 	"strings"
 	"sync"
@@ -21,33 +28,30 @@ import (
 // If something went wrong reading the terminfo database file, an error is
 // returned.
 func OpenTermInfo(termName string) (*TermInfo, error) {
-	var term *TermInfo
-	var err error
+	if len(termName) == 0 {
+		return nil, errors.New("No termname given")
+	}
 	// Find the environment variables
-	termloc := os.Getenv("TERMINFO")
-	if len(termloc) == 0 {
+	if termloc := os.Getenv("TERMINFO"); len(termloc) > 0 {
+		return readTermInfo(path.Join(termloc, string(termName[0]), termName))
+	} else {
 		// Search like ncurses
-		locations := []string{os.Getenv("HOME") + "/.terminfo/", "/etc/terminfo/",
-			"/lib/terminfo/", "/usr/share/terminfo/"}
-		var path string
+		locations := []string{}
+		if h := os.Getenv("HOME"); len(h) > 0 {
+			locations = append(locations, path.Join(h, ".terminfo"))
+		}
+		locations = append(locations,
+			"/etc/terminfo/",
+			"/lib/terminfo/",
+			"/usr/share/terminfo/")
 		for _, str := range locations {
-			// Construct path
-			path = str + string(termName[0]) + "/" + termName
-			// Check if path can be opened
-			file, _ := os.Open(path)
-			if file != nil {
-				// Path can open, fall out and use current path
-				file.Close()
-				break
+			term, err := readTermInfo(path.Join(str, string(termName[0]), termName))
+			if err == nil {
+				return term, nil
 			}
 		}
-		if len(path) > 0 {
-			term, err = readTermInfo(path)
-		} else {
-			err = errors.New(fmt.Sprintf("No terminfo file(-location) found"))
-		}
+		return nil, errors.New("No terminfo file(-location) found")
 	}
-	return term, err
 }
 
 // Open a terminfo file from the environment variable containing the current
@@ -110,7 +114,7 @@ func (term *TermInfo) GetAttributeName(name string) (stacker, error) {
 	return term.GetAttribute(tc)
 }
 
-// A utility function that finds and returns the termcap equivalent of a 
+// A utility function that finds and returns the termcap equivalent of a
 // variable name.
 func GetTermcapName(name string) string {
 	// Termcap name
@@ -192,7 +196,9 @@ func readTermInfo(path string) (*TermInfo, error) {
 		}
 	}
 	// If the number of bytes read is not even, a byte for alignment is added
-	if len(byteArray)%2 != 0 {
+	// We know the header is an even number of bytes so only need to check the
+	// total of the names and booleans.
+	if (header[1]+header[2])%2 != 0 {
 		err = binary.Read(file, binary.LittleEndian, make([]byte, 1))
 		if err != nil {
 			return nil, err
@@ -228,9 +234,14 @@ func readTermInfo(path string) (*TermInfo, error) {
 	// We get an offset, and then iterate until the string is null-terminated
 	for i, offset := range shArray {
 		if offset > -1 {
-			r := offset
-			for ; byteArray[r] != 0; r++ {
+			if int(offset) >= len(byteArray) {
+				return nil, errors.New("array out of bounds reading string section")
 			}
+			r := bytes.IndexByte(byteArray[offset:], 0)
+			if r == -1 {
+				return nil, errors.New("missing nul byte reading string section")
+			}
+			r += int(offset)
 			term.strAttributes[StrAttr[i*2+1]] = string(byteArray[offset:r])
 		}
 	}
