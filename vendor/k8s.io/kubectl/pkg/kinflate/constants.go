@@ -17,4 +17,4 @@ limitations under the License.
 package kinflate
 
 // KubeManifestFileName is the Well-Known File Name for a kubernetes app manifest.
-const KubeManifestFileName = "Kube-manifest.yaml"
+const KubeManifestFileName = "kube-manifest.yaml"
