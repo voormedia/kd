@@ -17,6 +17,12 @@
 2. Build KD from source: `go install github.com/voormedia/kd`
 3. Install Google Cloud credential helper: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_darwin_amd64-1.4.3.zip | funzip > ~/.bin/docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
 
+## Developing for Linux
+
+To build:
+`env GOOS=linux GOARCH=amd64 go build -i -v`
+
+Rename `kd` to `linux_amd64_kd` and upload to release
 
 ## Best practices for deploying
 
