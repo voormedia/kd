@@ -12,10 +12,13 @@
 1. Ensure you have `~/.bin` directory or similar that is in your `$PATH`
 2. Install KD:
 
-- if using Big Sur run: `curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep big_sur_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
-- else run: `curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
+- When using macOS 11+ run: `curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep big_sur_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
+- Otherwise run: `curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
 
-3. Install Google Cloud credential helper: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_darwin_amd64-1.4.3.zip | funzip > ~/.bin/docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
+3. Install Google Cloud credential helper:
+
+- When using an Apple M1+ MacBook run: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_arm64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
+- When using an Intel MacBook run: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_amd64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
 
 ### Option 2 – from source
 
