@@ -4,6 +4,7 @@
 
 1. A working Docker installation – https://store.docker.com/editions/community/docker-ce-desktop-mac
 2. Google Cloud SDK `gcloud` – https://cloud.google.com/sdk/docs/quickstart-macos
+3. Cluster credentials – In the Google Cloud Platform console, navigate to "Kubernetes engine" > "Clusters" and select "Connect" from the kebab menu.
 
 ## Installing
 
