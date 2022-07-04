@@ -6,18 +6,26 @@ import (
 	"path/filepath"
 
 	"github.com/voormedia/kd/pkg/config"
+	"github.com/voormedia/kd/pkg/util"
 )
 
-func Build(app *config.ResolvedApp) error {
+func Build(log *util.Logger, app *config.ResolvedApp) error {
 	dockerfile := filepath.Join(app.Path, "Dockerfile")
 
-	return run(
-		"buildx",
-		"build", "--ssh", "default",
+	args := []string{
+		"buildx", "build",
+	}
+
+	if _, ok := os.LookupEnv("SSH_AUTH_SOCK"); ok {
+		log.Note("Enabled SSH agent key forwarding")
+		args = append(args, "--ssh", "default")
+	}
+
+	return run(append(args,
 		"--file", dockerfile,
 		"--tag", app.Repository(),
 		app.Root,
-	)
+	)...)
 }
 
 func Push(app *config.ResolvedApp) error {

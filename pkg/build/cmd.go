@@ -17,7 +17,7 @@ func Run(log *util.Logger, app *config.ResolvedApp) error {
 	}
 
 	log.Note("Building", app.Name)
-	if err := docker.Build(app); err != nil {
+	if err := docker.Build(log, app); err != nil {
 		log.Fatal(err)
 	}
 

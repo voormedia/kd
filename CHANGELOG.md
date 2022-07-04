@@ -1,3 +1,7 @@
+# v2.0.2
+
+* Do not attempt to forward SSH keys if `SSH_AUTH_SOCK` is unset.
+
 # v2.0.1
 
 * Fix `--tag` flag to work for `build` & `deploy` commands.

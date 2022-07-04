@@ -44,8 +44,6 @@ as "latest" by default. The tag can optionally be specified.`,
 			log.Fatal(err)
 		}
 
-
-
 		err = build.Run(log, app)
 		if err != nil {
 			log.Fatal(err)
