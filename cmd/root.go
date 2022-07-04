@@ -5,7 +5,7 @@ import (
 	"github.com/voormedia/kd/pkg/util"
 )
 
-var version = "2.0.0"
+var version = "master"
 var log = util.NewLogger("kd")
 
 var cmdRoot = &cobra.Command{
