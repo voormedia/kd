@@ -17,5 +17,5 @@ func Run(log *util.Logger, args ...string) error {
 		return err
 	}
 
-	return kubectl.RunForTarget([]byte{}, tgt, args[1:]...)
+	return kubectl.RunForTarget(tgt, args[1:]...)
 }

@@ -10,22 +10,17 @@ import (
 )
 
 func ApplyFromStdin(target *config.ResolvedTarget, input []byte) error {
-	err := RunForTarget(input, target, "apply", "-f", "-")
+	cmd := runCmdWithArgs(appendTargetArgs([]string{"apply", "-f", "-"}, target))
 
-	if err != nil {
-		return err
-	}
+	cmd.Stdin = bytes.NewReader(input)
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
 
-	return nil
+	return cmd.Run()
 }
 
 func RunForTarget(stdin []byte, target *config.ResolvedTarget, args ...string) error {
-	args = append(args,
-		"--context", target.Context,
-		"--namespace", target.Namespace,
-	)
-
-	cmd := exec.Command("kubectl", args...)
+	cmd := runCmdWithArgs(appendTargetArgs(args, target))
 
 	cmd.Stdin = bytes.NewReader(stdin)
 	cmd.Stderr = os.Stderr
@@ -35,7 +30,7 @@ func RunForTarget(stdin []byte, target *config.ResolvedTarget, args ...string) e
 }
 
 func Version() (string, error) {
-	bytes, err := capture(nil, "version", "--client", "--output", "json")
+	bytes, err := capture("version", "--client", "--output", "json")
 	if err != nil {
 		return "", err
 	}
@@ -57,10 +52,11 @@ type VersionDetails struct {
 	ClientVersion `yaml:"clientVersion,omitempty"`
 }
 
-func capture(stdin []byte, args ...string) ([]byte, error) {
-	cmd := exec.Command("kubectl", args...)
+func capture(args ...string) ([]byte, error) {
+	cmd := runCmdWithArgs(args)
+
 	buf := &bytes.Buffer{}
-	cmd.Stdin = bytes.NewReader(stdin)
+	cmd.Stdin = bytes.NewReader([]byte{})
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = buf
 
@@ -70,4 +66,15 @@ func capture(stdin []byte, args ...string) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+func runCmdWithArgs(args []string) *exec.Cmd {
+	return exec.Command("kubectl", args...)
+}
+
+func appendTargetArgs(args []string, target *config.ResolvedTarget) []string {
+	return append(args,
+		"--context", target.Context,
+		"--namespace", target.Namespace,
+	)
 }

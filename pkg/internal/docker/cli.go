@@ -30,7 +30,7 @@ func Push(app *config.ResolvedApp) error {
 func run(args ...string) error {
 	cmd := exec.Command("docker", args...)
 
-	cmd.Stdin = bytes.NewReader([]byte{})
+	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
