@@ -41,7 +41,7 @@ jobs:
     - name: Build artifacts
       run: |
         go version
-        go install github.com/mitchellh/gox
+        go install github.com/mitchellh/gox@latest
         export version=${{ github.ref }}
         make cross
 
