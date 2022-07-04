@@ -19,10 +19,10 @@ func ApplyFromStdin(target *config.ResolvedTarget, input []byte) error {
 	return cmd.Run()
 }
 
-func RunForTarget(stdin []byte, target *config.ResolvedTarget, args ...string) error {
+func RunForTarget(target *config.ResolvedTarget, args ...string) error {
 	cmd := runCmdWithArgs(appendTargetArgs(args, target))
 
-	cmd.Stdin = bytes.NewReader(stdin)
+	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 

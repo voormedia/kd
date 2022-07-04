@@ -1,7 +1,6 @@
 package docker
 
 import (
-	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
