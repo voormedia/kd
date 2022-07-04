@@ -6,6 +6,8 @@ import (
 	"github.com/voormedia/kd/pkg/config"
 )
 
+var buildTag string = ""
+
 var cmdBuild = &cobra.Command{
 	Use:                   "build [app[:tag]]",
 	Short:                 "Build container images for an application",
@@ -37,10 +39,12 @@ as "latest" by default. The tag can optionally be specified.`,
 			name = args[0]
 		}
 
-		app, err := conf.ResolveApp(name)
+		app, err := conf.ResolveApp(name, buildTag)
 		if err != nil {
 			log.Fatal(err)
 		}
+
+
 
 		err = build.Run(log, app)
 		if err != nil {
@@ -50,5 +54,6 @@ as "latest" by default. The tag can optionally be specified.`,
 }
 
 func init() {
+	cmdBuild.Flags().StringVar(&buildTag, "tag", "", "tag to use for the built image")
 	cmdRoot.AddCommand(cmdBuild)
 }

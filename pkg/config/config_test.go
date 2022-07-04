@@ -189,7 +189,7 @@ func TestResolveExistingApp(t *testing.T) {
 		}},
 	}
 
-	app, err := conf.ResolveApp("foo")
+	app, err := conf.ResolveApp("foo", "")
 	assert.Nil(t, err)
 	assert.Equal(t, "latest", app.Tag)
 	assert.Equal(t, "apps/foo", app.Path)
@@ -205,7 +205,7 @@ func TestResolveExistingAppExplicitTag(t *testing.T) {
 		}},
 	}
 
-	app, err := conf.ResolveApp("foo:my-tag")
+	app, err := conf.ResolveApp("foo:my-tag", "")
 	assert.Nil(t, err)
 	assert.Equal(t, "my-tag", app.Tag)
 	assert.Equal(t, "my.registry.com/foo:my-tag", app.Repository())
@@ -221,7 +221,7 @@ func TestResolveExistingAppExplicitLatest(t *testing.T) {
 		}},
 	}
 
-	app, err := conf.ResolveApp("foo:latest")
+	app, err := conf.ResolveApp("foo:latest", "")
 	assert.Nil(t, err)
 	assert.Equal(t, "latest", app.Tag)
 	assert.Equal(t, "my.registry.com/foo:latest", app.Repository())
@@ -237,7 +237,7 @@ func TestResolveMissingApp(t *testing.T) {
 		}},
 	}
 
-	app, err := conf.ResolveApp("bar")
+	app, err := conf.ResolveApp("bar", "")
 	assert.Nil(t, app)
 	assert.Equal(t, "Unknown application 'bar'", err.Error())
 }
@@ -252,7 +252,7 @@ func TestResolveDefaultAppForSingle(t *testing.T) {
 		}},
 	}
 
-	app, err := conf.ResolveApp("")
+	app, err := conf.ResolveApp("", "")
 	assert.Nil(t, err)
 	assert.Equal(t, "latest", app.Tag)
 	assert.Equal(t, "my.registry.com/foo:latest", app.Repository())
@@ -272,7 +272,7 @@ func TestResolveDefaultAppForMultiple(t *testing.T) {
 		}},
 	}
 
-	app, err := conf.ResolveApp("")
+	app, err := conf.ResolveApp("", "")
 	assert.Nil(t, app)
 	assert.Equal(t, "Selecting default requires exactly 1 application (2 configured)", err.Error())
 }
@@ -283,7 +283,7 @@ func TestResolveDefaultAppForNone(t *testing.T) {
 		Apps:     []App{},
 	}
 
-	app, err := conf.ResolveApp("")
+	app, err := conf.ResolveApp("", "")
 	assert.Nil(t, app)
 	assert.Equal(t, "Selecting default requires exactly 1 application (0 configured)", err.Error())
 }

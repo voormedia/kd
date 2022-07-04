@@ -6,6 +6,8 @@ import (
 	"github.com/voormedia/kd/pkg/deploy"
 )
 
+var deployTag string = ""
+
 var cmdDeploy = &cobra.Command{
 	Use:                   "deploy [app[:tag]] <target>",
 	Short:                 "Configure and deploy an application to a cluster",
@@ -46,7 +48,7 @@ target to which it was deployed.`,
 			log.Fatal(err)
 		}
 
-		app, err := conf.ResolveApp(name)
+		app, err := conf.ResolveApp(name, deployTag)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -59,5 +61,6 @@ target to which it was deployed.`,
 }
 
 func init() {
+	cmdDeploy.Flags().StringVar(&deployTag, "tag", "", "tag to deploy")
 	cmdRoot.AddCommand(cmdDeploy)
 }

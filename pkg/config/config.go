@@ -82,13 +82,18 @@ func (conf *Config) AppNames() (names []string) {
 	return
 }
 
-func (conf *Config) ResolveApp(name string) (*ResolvedApp, error) {
+func (conf *Config) ResolveApp(name string, tag string) (*ResolvedApp, error) {
 	/* TODO: No naming conflicts are checked yet. Returns the first match. */
 	parts := strings.Split(name, ":")
-	tag := DefaultTag
 	name = parts[0]
-	if len(parts) > 1 {
-		tag = parts[1]
+
+	if tag == "" {
+		tag = DefaultTag
+		if len(parts) > 1 {
+			tag = parts[1]
+		}
+	} else if len(parts) > 1 {
+		return nil, fmt.Errorf("Specify a tag either with 'app:%s' or with '--tag %s', but not both", parts[1], tag)
 	}
 
 	if name == "" && len(conf.Apps) != 1 {
