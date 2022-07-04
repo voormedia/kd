@@ -1,5 +1,5 @@
 all:
-	go build -i -v
+	go build -v
 
 test:
 	go test -v ./pkg/...

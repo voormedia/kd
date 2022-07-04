@@ -7,8 +7,8 @@ import (
 )
 
 var cmdDeploy = &cobra.Command{
-	Use:   "deploy [app[:tag]] <target>",
-	Short: "Configure and deploy an application to a cluster",
+	Use:                   "deploy [app[:tag]] <target>",
+	Short:                 "Configure and deploy an application to a cluster",
 	DisableFlagsInUseLine: true,
 
 	Args:    cobra.RangeArgs(1, 2),
@@ -51,7 +51,7 @@ target to which it was deployed.`,
 			log.Fatal(err)
 		}
 
-		err = deploy.Run(verbose, log, app, tgt)
+		err = deploy.Run(log, app, tgt)
 		if err != nil {
 			log.Fatal(err)
 		}

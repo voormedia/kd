@@ -6,13 +6,14 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type ResolvedApp struct {
 	App
 	Tag      string
 	Registry string
+	Platform string
 }
 
 type ResolvedTarget struct {
@@ -23,25 +24,24 @@ const DefaultTag = "latest"
 const ConfigName = "kdeploy.conf"
 
 func Load() (*Config, error) {
-	return loadFromFs(&afero.Afero{Fs: afero.NewOsFs()})
+	return LoadFromFs(&afero.Afero{Fs: afero.NewOsFs()})
 }
 
-func loadFromFs(afs *afero.Afero) (*Config, error) {
-	bytes, err := afs.ReadFile(ConfigName)
+func LoadFromFs(afs *afero.Afero) (*Config, error) {
+	conf, err := GetRawFromFS(afs)
 	if err != nil {
-		return nil, errors.Wrap(err, "Config error")
-	}
-
-	var conf Config
-	if err := yaml.UnmarshalStrict(bytes, &conf); err != nil {
-		return nil, errors.Wrap(err, "Config error")
+		return nil, err
 	}
 
 	if conf.ApiVersion > LatestVersion {
-		return nil, errors.Errorf("Unsupported configuration version %d, please update kd!", conf.ApiVersion)
+		return nil, errors.Errorf("Unsupported configuration version %d, please get the latest version of kd", conf.ApiVersion)
 	}
 
-	for i, _ := range conf.Apps {
+	if conf.ApiVersion == 1 {
+		return nil, errors.Errorf("Unsupported configuration version %d, please run 'kd upgrade' to upgrade to version %d", conf.ApiVersion, LatestVersion)
+	}
+
+	for i := range conf.Apps {
 		app := &conf.Apps[i]
 
 		if app.Name == "" {
@@ -52,6 +52,24 @@ func loadFromFs(afs *afero.Afero) (*Config, error) {
 		if app.Root == "" {
 			app.Root = app.Path
 		}
+
+		if app.Platform == "" {
+			app.Platform = "linux/amd64"
+		}
+	}
+
+	return conf, nil
+}
+
+func GetRawFromFS(afs *afero.Afero) (*Config, error) {
+	bytes, err := afs.ReadFile(ConfigName)
+	if err != nil {
+		return nil, errors.Wrap(err, "Config error")
+	}
+
+	var conf Config
+	if err := yaml.Unmarshal(bytes, &conf); err != nil {
+		return nil, errors.Wrap(err, "Config error")
 	}
 
 	return &conf, nil

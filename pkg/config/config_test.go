@@ -41,20 +41,22 @@ func TestLoad(t *testing.T) {
 		"  path: config/deploy/production\n",
 	}, "")), 0644)
 
-	conf, err := loadFromFs(fs)
+	conf, err := LoadFromFs(fs)
 	assert.Nil(t, err)
 
 	expected := &Config{
 		ApiVersion: LatestVersion,
 		Registry:   "eu.gcr.io/project-123456/a-customer-name",
 		Apps: []App{{
-			Name: "my-website",
-			Path: ".",
-			Root: ".",
+			Name:     "my-website",
+			Path:     ".",
+			Root:     ".",
+			Platform: "linux/amd64",
 		}, {
 			Name:     "other-app",
 			Path:     "apps/other-app",
 			Root:     "apps",
+			Platform: "linux/amd64",
 			PreBuild: "script/foo.sh",
 		}},
 		Targets: []Target{{
@@ -78,14 +80,14 @@ func TestLoadError(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("kdeploy.conf", []byte("Bad file format"), 0644)
 
-	conf, err := loadFromFs(fs)
+	conf, err := LoadFromFs(fs)
 	assert.Nil(t, conf)
 	assert.Equal(t, "Config error: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `Bad fil...` into config.Config", err.Error())
 }
 
 func TestLoadMissing(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
-	conf, err := loadFromFs(fs)
+	conf, err := LoadFromFs(fs)
 	assert.Nil(t, conf)
 	assert.Equal(t, "Config error: open kdeploy.conf: file does not exist", err.Error())
 }
@@ -94,9 +96,9 @@ func TestLoadUnknownVersion(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("kdeploy.conf", []byte("version: 999999"), 0644)
 
-	conf, err := loadFromFs(fs)
+	conf, err := LoadFromFs(fs)
 	assert.Nil(t, conf)
-	assert.Equal(t, "Unsupported configuration version 999999, please update kd!", err.Error())
+	assert.Equal(t, "Unsupported configuration version 999999, please get the latest version of kd", err.Error())
 }
 
 func TestAppNames(t *testing.T) {

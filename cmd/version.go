@@ -7,8 +7,8 @@ import (
 )
 
 var cmdVersion = &cobra.Command{
-	Use:   "version",
-	Short: "Show version",
+	Use:                   "version",
+	Short:                 "Show version",
 	DisableFlagsInUseLine: true,
 
 	Long: "Show version number and exit",

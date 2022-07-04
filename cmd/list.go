@@ -6,14 +6,17 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/voormedia/kd/pkg/config"
 )
 
+var output outputType = "table"
+
 var cmdList = &cobra.Command{
-	Use:   "list (targets | apps)",
-	Short: "List configured targets or applications",
-	DisableFlagsInUseLine: true,
+	Use:                   "list (targets | apps)",
+	Short:                 "List configured targets or applications",
+	DisableFlagsInUseLine: false,
 
 	ValidArgs: []string{"targets", "apps"},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -41,31 +44,57 @@ was found in the current directory.`,
 
 		switch args[0] {
 		case "targets":
-			if verbose {
+			if output == "name" {
+				fmt.Println(strings.Join(conf.TargetNames(), "\n"))
+			} else {
 				tw := tabwriter.NewWriter(os.Stdout, 10, 4, 3, ' ', 0)
 				fmt.Fprintf(tw, "NAME\tALIASES\tCONTEXT\tNAMESPACE\n")
 				for _, tgt := range conf.Targets {
 					fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", tgt.Name, strings.Join(tgt.Alias, ", "), tgt.Context, tgt.Namespace)
 				}
 				tw.Flush()
-			} else {
-				fmt.Println(strings.Join(conf.TargetNames(), "\n"))
 			}
 		case "apps":
-			if verbose {
+			if output == "name" {
+				fmt.Println(strings.Join(conf.AppNames(), "\n"))
+			} else {
 				tw := tabwriter.NewWriter(os.Stdout, 10, 4, 2, ' ', 0)
 				fmt.Fprintf(tw, "NAME\tPATH\tROOT\n")
 				for _, app := range conf.Apps {
 					fmt.Fprintf(tw, "%s\t%s\t%s\n", app.Name, app.Path, app.Root)
 				}
 				tw.Flush()
-			} else {
-				fmt.Println(strings.Join(conf.AppNames(), "\n"))
 			}
 		}
 	},
 }
 
 func init() {
+	cmdList.Flags().VarP(&output, "output", "o", `output format, either "table" or "name"`)
 	cmdRoot.AddCommand(cmdList)
+}
+
+type outputType string
+
+const (
+	outputTable outputType = "table"
+	outputName  outputType = "name"
+)
+
+func (e *outputType) String() string {
+	return `"` + string(*e) + `"`
+}
+
+func (e *outputType) Set(v string) error {
+	switch v {
+	case "table", "name":
+		*e = outputType(v)
+		return nil
+	default:
+		return errors.New(`must be either "table" or "name"`)
+	}
+}
+
+func (e *outputType) Type() string {
+	return "type"
 }

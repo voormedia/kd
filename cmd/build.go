@@ -7,19 +7,18 @@ import (
 )
 
 var cmdBuild = &cobra.Command{
-	Use:   "build [app[:tag]]",
-	Short: "Build container images for an application",
-	DisableFlagsInUseLine:  true,
-	BashCompletionFunction: customCompletion,
+	Use:                   "build [app[:tag]]",
+	Short:                 "Build container images for an application",
+	DisableFlagsInUseLine: true,
 
 	Args:    cobra.RangeArgs(0, 1),
 	Aliases: []string{"bld"},
 
 	Long: `Builds a single application. If only one application is configured, the name
-can be omitted.Application images will be pushed to the registry and tagged
-as 'latest' by default. The tag can optionally be specified per application.`,
+can be omitted. Application images will be pushed to the registry and tagged
+as "latest" by default. The tag can optionally be specified.`,
 
-	Example: "  kd build my-app",
+	Example: "  kd build my-app\n  kd build my-app:awesome-tag",
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if conf, err := config.Load(); err == nil {
@@ -43,7 +42,7 @@ as 'latest' by default. The tag can optionally be specified per application.`,
 			log.Fatal(err)
 		}
 
-		err = build.Run(verbose, log, app)
+		err = build.Run(log, app)
 		if err != nil {
 			log.Fatal(err)
 		}

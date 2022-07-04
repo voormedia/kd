@@ -6,8 +6,8 @@ import (
 )
 
 var cmdInit = &cobra.Command{
-	Use:   "init",
-	Short: "Generate initial configuration files",
+	Use:                   "init",
+	Short:                 "Generate initial configuration files",
 	DisableFlagsInUseLine: true,
 
 	Run: func(_ *cobra.Command, args []string) {

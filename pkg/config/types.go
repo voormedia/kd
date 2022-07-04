@@ -2,7 +2,7 @@ package config
 
 /* Maximum configuration version accepted by this version of kd.
    Increment this version on API incompatible changes. */
-const LatestVersion uint = 1
+const LatestVersion uint = 2
 
 type StringArray []string
 
@@ -10,6 +10,7 @@ type App struct {
 	Name      string `yaml:"name,omitempty"`
 	Path      string `yaml:"path,omitempty"`
 	Root      string `yaml:"root,omitempty"`
+	Platform  string `yaml:"platform,omitempty"`
 	PreBuild  string `yaml:"preBuild,omitempty"`
 	PostBuild string `yaml:"postBuild,omitempty"`
 }
