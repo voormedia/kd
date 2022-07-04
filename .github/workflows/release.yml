@@ -17,9 +17,12 @@ jobs:
       with:
         go-version: "1.18"
 
-    - name: Build
-      run: make
-
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1
+      with:
+        # Optionally strip `v` prefix
+        strip_v: true
 
     - name: Release
       uses: actions/create-release@v1
@@ -37,7 +40,7 @@ jobs:
       run: |
         go version
         go install github.com/mitchellh/gox@latest
-        export version=${{ github.ref }}
+        export version=${{ steps.tag.outputs.tag }}
         make cross
 
     - name: Upload Darwin ARM/M1 artifact
