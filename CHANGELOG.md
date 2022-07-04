@@ -1,3 +1,7 @@
+# v2.0.1
+
+* Fix `--tag` flag to work for `build` & `deploy` commands.
+
 # v2.0.0
 
 * Builds are executed directly with `docker buildx`, using BuildKit.
