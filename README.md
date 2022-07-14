@@ -28,6 +28,22 @@
 2. Build KD from source: `go install github.com/voormedia/kd`
 3. Install Google Cloud credential helper: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_darwin_amd64-1.4.3.zip | funzip > ~/.bin/docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
 
+## SSH forwarding
+
+SSH keys can be forwarded if an SSH agent is running. This is the case by
+default on macOS. SSH keys usually need to be added to the agent manually. For
+example, to expose the SSH key `id_ed25519` to `kd`, execute the following:
+
+`ssh-add ~/.ssh/id_ed25519`
+
+To make sure this key is always exposed, add the following line to `~/.zshrc`:
+
+`ssh-add -q ~/.ssh/id_ed25519`
+
+In a `Dockerfile`, the SSH keys are **only** available for `RUN` commands if they opt in:
+
+`RUN --mount=type=ssh ...`
+
 ## Best practices for deploying
 
 ### Step 1 – adjust your app
