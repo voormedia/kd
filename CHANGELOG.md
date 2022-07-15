@@ -1,3 +1,7 @@
+# v2.0.3
+
+* Reduce default CPU reservation in production template for `kd init`.
+
 # v2.0.2
 
 * Do not attempt to forward SSH keys if `SSH_AUTH_SOCK` is unset.
