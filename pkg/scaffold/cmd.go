@@ -420,7 +420,7 @@ spec:
         resources:
           # Reserve resources for this application.
           requests:
-            cpu: 100m
+            cpu: 10m
             memory: 250Mi
 
           # Limit CPU and memory usage of this application. If the pod uses
