@@ -408,6 +408,15 @@ spec:
 
   template:
     spec:
+      # Schedule pods on different nodes.
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                name: {{.Name}}
+
       containers:
       - name: {{.Name}}
 

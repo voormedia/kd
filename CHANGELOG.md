@@ -1,3 +1,7 @@
+# v2.0.4
+
+* Add anti affinity to production template for `kd init`.
+
 # v2.0.3
 
 * Reduce default CPU reservation in production template for `kd init`.
