@@ -264,6 +264,8 @@ metadata:
   name: {{.Name}}
   labels:
     app: {{.Name}}
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
 
 spec:
   type: NodePort
