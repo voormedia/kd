@@ -1,3 +1,7 @@
+# v2.0.6
+
+* Supply the app platform to docker when building with `kd build`.
+
 # v2.0.4
 
 * Add anti affinity to production template for `kd init`.
