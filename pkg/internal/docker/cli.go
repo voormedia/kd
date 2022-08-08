@@ -24,6 +24,7 @@ func Build(log *util.Logger, app *config.ResolvedApp) error {
 	return run(append(args,
 		"--file", dockerfile,
 		"--tag", app.Repository(),
+		"--platform", app.Platform,
 		app.Root,
 	)...)
 }
