@@ -13,7 +13,6 @@ type ResolvedApp struct {
 	App
 	Tag      string
 	Registry string
-	Platform string
 }
 
 type ResolvedTarget struct {
