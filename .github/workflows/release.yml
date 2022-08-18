@@ -24,6 +24,8 @@ jobs:
         # Optionally strip `v` prefix
         strip_v: true
 
+    - run: awk 'BEGIN { RS="# "; FS="\n"; OFS=""; ORS="" } NR == 2 { print "# Changes in ", $0 }' < CHANGELOG.md > RELEASE.md
+
     - name: Release
       uses: actions/create-release@v1
       id: create_release
@@ -32,7 +34,7 @@ jobs:
         prerelease: false
         release_name: ${{ github.ref }}
         tag_name: ${{ github.ref }}
-        body_path: CHANGELOG.md
+        body_path: RELEASE.md
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
