@@ -37,7 +37,7 @@ func TagImage(manifest ImageManifest, location string) error {
 }
 
 func newClient() client.RegistryClient {
-	return client.NewRegistryClient(resolver, agent, false)
+	return client.NewRegistryClient(resolver, userAgent, false)
 }
 
 func resolver(ctx context.Context, index *registry.IndexInfo) types.AuthConfig {
@@ -46,4 +46,4 @@ func resolver(ctx context.Context, index *registry.IndexInfo) types.AuthConfig {
 	return types.AuthConfig(authConfig)
 }
 
-const agent = "KD (" + runtime.GOOS + ")"
+const userAgent = "KD (" + runtime.GOOS + ")"
