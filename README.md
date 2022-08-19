@@ -14,8 +14,8 @@
 1. Ensure you have `~/.bin` directory or similar that is in your `$PATH`
 2. Install KD:
 
-- When using an Apple M1+ Mac run: `curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_arm64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
-- When using an Intel Mac run: `curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
+- When using an Apple M1+ Mac run: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_arm64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
+- When using an Intel Mac run: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
 
 3. Install Google Cloud credential helper:
 
