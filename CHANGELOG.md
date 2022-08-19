@@ -1,3 +1,7 @@
+# v2.0.7
+
+* Check if any SSH keys are exposed by `SSH_AUTH_SOCK`, and warn if there are none.
+
 # v2.0.6
 
 * Supply the app platform to docker when building with `kd build`.
