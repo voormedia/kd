@@ -1,3 +1,8 @@
+# v2.0.8
+
+* Show more verbose output during pre/post-build steps.
+* Warn if pre-build step contains reference to '.ssh' directory.
+
 # v2.0.7
 
 * Check if any SSH keys are exposed by `SSH_AUTH_SOCK`, and warn if there are none.
