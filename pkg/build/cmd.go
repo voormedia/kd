@@ -1,7 +1,9 @@
 package build
 
 import (
+	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/voormedia/kd/pkg/config"
 	"github.com/voormedia/kd/pkg/internal/docker"
@@ -10,9 +12,17 @@ import (
 
 func Run(log *util.Logger, app *config.ResolvedApp) error {
 	if app.PreBuild != "" {
+		if strings.Contains(app.PreBuild, "/.ssh") {
+			log.Warn("Pre-build command in 'kdeploy.conf' contains reference to '.ssh'.")
+			log.Warn("Please use SSH key forwarding: https://github.com/voormedia/kd#ssh-forwarding")
+		}
+
 		cmd := exec.Command("sh", "-c", app.PreBuild)
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+
 		if err := cmd.Run(); err != nil {
-			log.Fatal(err)
+			log.Fatal("Pre-build command failed:", err)
 		}
 	}
 
@@ -28,8 +38,11 @@ func Run(log *util.Logger, app *config.ResolvedApp) error {
 
 	if app.PostBuild != "" {
 		cmd := exec.Command("sh", "-c", app.PostBuild)
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+
 		if err := cmd.Run(); err != nil {
-			log.Fatal(err)
+			log.Fatal("Post-build command failed:", err)
 		}
 	}
 
