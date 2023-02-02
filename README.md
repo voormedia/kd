@@ -36,9 +36,17 @@ example, to expose the SSH key `id_ed25519` to `kd`, execute the following:
 
 `ssh-add ~/.ssh/id_ed25519`
 
+In case your .ssh folder does not contain the file `id_ed25519` but `id_rsa`, use the following command: 
+
+`ssh-add ~/.ssh/id_rsa`
+
 To make sure this key is always exposed, add the following line to `~/.zshrc`:
 
 `ssh-add -q ~/.ssh/id_ed25519`
+
+If you have the file `id_rsa`, add the following line to `~/.zshrc`:
+
+`ssh-add -q ~/.ssh/id_rsa`
 
 In a `Dockerfile`, the SSH keys are **only** available for `RUN` commands if they opt in:
 
