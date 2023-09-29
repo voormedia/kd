@@ -1,3 +1,7 @@
+# v2.0.9
+
+* Fix issue during initialization.
+
 # v2.0.8
 
 * Show more verbose output during pre/post-build steps.
