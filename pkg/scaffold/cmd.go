@@ -477,6 +477,7 @@ func writeConfig(afs *afero.Afero, details *details) error {
 			Replicas:    2,
 		}
 
+		fs.mkdir(bsePath)
 		fs.mkdir(accPath)
 		fs.mkdir(prdPath)
 
