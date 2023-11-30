@@ -1,3 +1,7 @@
+# v2.1.0
+
+* Add support for explicit default apps (`default: true`).
+
 # v2.0.9
 
 * Fix issue during initialization.

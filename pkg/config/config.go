@@ -40,8 +40,13 @@ func LoadFromFs(afs *afero.Afero) (*Config, error) {
 		return nil, errors.Errorf("Unsupported configuration version %d, please run 'kd upgrade' to upgrade to version %d", conf.ApiVersion, LatestVersion)
 	}
 
+	defaults := 0
 	for i := range conf.Apps {
 		app := &conf.Apps[i]
+
+		if app.Default {
+			defaults += 1
+		}
 
 		if app.Name == "" {
 			parts := strings.Split(app.Path, "/")
@@ -55,6 +60,10 @@ func LoadFromFs(afs *afero.Afero) (*Config, error) {
 		if app.Platform == "" {
 			app.Platform = "linux/amd64"
 		}
+	}
+
+	if defaults > 1 {
+		return nil, fmt.Errorf("Only one application may be marked with 'default: true'")
 	}
 
 	return conf, nil
@@ -95,21 +104,25 @@ func (conf *Config) ResolveApp(name string, tag string) (*ResolvedApp, error) {
 		return nil, fmt.Errorf("Specify a tag either with 'app:%s' or with '--tag %s', but not both", parts[1], tag)
 	}
 
-	if name == "" && len(conf.Apps) != 1 {
-		return nil, fmt.Errorf("Selecting default requires exactly 1 application (%d configured)", len(conf.Apps))
-	} else {
-		for _, app := range conf.Apps {
-			if name == "" || name == app.Name {
-				return &ResolvedApp{
-					App:      app,
-					Tag:      tag,
-					Registry: conf.Registry,
-				}, nil
-			}
+	for _, app := range conf.Apps {
+		if (name == "" && (app.Default || len(conf.Apps) == 1)) || name == app.Name {
+			return &ResolvedApp{
+				App:      app,
+				Tag:      tag,
+				Registry: conf.Registry,
+			}, nil
 		}
-
-		return nil, fmt.Errorf("Unknown application '%s'", name)
 	}
+
+	if len(conf.Apps) == 0 {
+		return nil, fmt.Errorf("No applications configured")
+	}
+
+	if name == "" {
+		return nil, fmt.Errorf("Selecting default requires one application to be marked with 'default: true'")
+	}
+
+	return nil, fmt.Errorf("Unknown application '%s'", name)
 }
 
 func (conf *Config) TargetNames() (names []string) {

@@ -23,6 +23,7 @@ func TestLoad(t *testing.T) {
 		"apps:\n",
 		"- name: my-website\n",
 		"  path: .\n",
+		"  default: true\n",
 		"- path: apps/other-app\n",
 		"  root: apps\n",
 		"  preBuild: script/foo.sh\n",
@@ -51,6 +52,7 @@ func TestLoad(t *testing.T) {
 			Name:     "my-website",
 			Path:     ".",
 			Root:     ".",
+			Default:  true,
 			Platform: "linux/amd64",
 		}, {
 			Name:     "other-app",
@@ -274,7 +276,7 @@ func TestResolveDefaultAppForMultiple(t *testing.T) {
 
 	app, err := conf.ResolveApp("", "")
 	assert.Nil(t, app)
-	assert.Equal(t, "Selecting default requires exactly 1 application (2 configured)", err.Error())
+	assert.Equal(t, "Selecting default requires one application to be marked with 'default: true'", err.Error())
 }
 
 func TestResolveDefaultAppForNone(t *testing.T) {
@@ -285,7 +287,7 @@ func TestResolveDefaultAppForNone(t *testing.T) {
 
 	app, err := conf.ResolveApp("", "")
 	assert.Nil(t, app)
-	assert.Equal(t, "Selecting default requires exactly 1 application (0 configured)", err.Error())
+	assert.Equal(t, "No applications configured", err.Error())
 }
 
 func TestResolveExistingTargetAlias(t *testing.T) {
