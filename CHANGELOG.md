@@ -2,7 +2,7 @@
 
 * Automatically flush any CDN cache on deployment.
 * Add verbose flag.
-* Update dependencies.
+* Update internal dependencies.
 
 # v2.1.0
 
