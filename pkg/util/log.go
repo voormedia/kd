@@ -7,10 +7,18 @@ import (
 	"github.com/fatih/color"
 )
 
+type Level int
+
+const (
+	Info Level = 0
+	Debug Level = 1
+)
+
 type Logger struct {
 	prefix string
 	out    io.Writer
 	color  bool
+	level  Level
 }
 
 func NewLogger(prefix string) *Logger {
@@ -19,6 +27,20 @@ func NewLogger(prefix string) *Logger {
 		out:    os.Stderr,
 		color:  true,
 	}
+}
+
+func (log *Logger) SetLevel(level Level) {
+	log.level = level
+}
+
+func (log *Logger) Debug(a ...interface{}) {
+	if log.level < Debug {
+		return
+	}
+
+	col := color.New(color.FgHiBlack)
+	col.Fprint(log.out, log.prefix+": ")
+	col.Fprintln(log.out, a...)
 }
 
 func (log *Logger) Log(a ...interface{}) {

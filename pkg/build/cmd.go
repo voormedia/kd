@@ -1,8 +1,6 @@
 package build
 
 import (
-	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/voormedia/kd/pkg/config"
@@ -17,11 +15,8 @@ func Run(log *util.Logger, app *config.ResolvedApp) error {
 			log.Warn("Please use SSH key forwarding: https://github.com/voormedia/kd#ssh-forwarding")
 		}
 
-		cmd := exec.Command("sh", "-c", app.PreBuild)
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-
-		if err := cmd.Run(); err != nil {
+		err := util.Run(log, "sh", "-c", app.PreBuild)
+		if err != nil {
 			log.Fatal("Pre-build command failed:", err)
 		}
 	}
@@ -32,16 +27,13 @@ func Run(log *util.Logger, app *config.ResolvedApp) error {
 	}
 
 	log.Note("Pushing", app.Name+":"+app.Tag)
-	if err := docker.Push(app); err != nil {
+	if err := docker.Push(log, app); err != nil {
 		log.Fatal(err)
 	}
 
 	if app.PostBuild != "" {
-		cmd := exec.Command("sh", "-c", app.PostBuild)
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-
-		if err := cmd.Run(); err != nil {
+		err := util.Run(log, "sh", "-c", app.PostBuild)
+		if err != nil {
 			log.Fatal("Post-build command failed:", err)
 		}
 	}

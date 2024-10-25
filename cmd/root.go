@@ -11,10 +11,16 @@ var log = util.NewLogger("kd")
 var cmdRoot = &cobra.Command{
 	Use:   "kd",
 	Short: "Build and deploy apps to k8s cluster",
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if verbose, _ := cmd.Flags().GetBool("verbose"); verbose {
+			log.SetLevel(util.Debug)
+		}
+	},
 }
 
 func init() {
 	cmdRoot.Version = version
+	cmdRoot.PersistentFlags().Bool("verbose", false, "verbose output")
 }
 
 func Execute() {

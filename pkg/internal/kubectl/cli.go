@@ -1,78 +1,62 @@
 package kubectl
 
 import (
-	"bytes"
-	"os"
-	"os/exec"
+	"encoding/json"
 
+	"github.com/voormedia/kd/pkg/util"
 	"github.com/voormedia/kd/pkg/config"
-	"gopkg.in/yaml.v3"
+	networking "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/version"
 )
 
-func ApplyFromStdin(target *config.ResolvedTarget, input []byte) error {
-	cmd := runCmdWithArgs(appendTargetArgs([]string{"apply", "-f", "-"}, target))
-
-	cmd.Stdin = bytes.NewReader(input)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-
-	return cmd.Run()
+func ApplyFromStdin(log *util.Logger, target *config.ResolvedTarget, input []byte) error {
+	return util.RunWithInput(log, input, "kubectl", targetArgs(target, "apply", "-f", "-")...)
 }
 
-func RunForTarget(target *config.ResolvedTarget, args ...string) error {
-	cmd := runCmdWithArgs(appendTargetArgs(args, target))
+func GetGCEIngresses(log *util.Logger, target *config.ResolvedTarget) ([]*networking.Ingress, error) {
+	bytes, err := util.Capture(log, "kubectl", targetArgs(target, "get", "ingress", "--output", "json")...)
+	if err != nil {
+		return nil, err
+	}
 
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	var list networking.IngressList
+	if err := json.Unmarshal(bytes, &list); err != nil {
+		return nil, err
+	}
 
-	return cmd.Run()
+	var ingresses []*networking.Ingress
+	for _, ingress := range list.Items {
+		if ingress.Annotations["kubernetes.io/ingress.class"] == "gce" {
+			ingresses = append(ingresses, &ingress)
+		}
+	}
+
+	return ingresses, nil
 }
 
-func Version() (string, error) {
-	bytes, err := capture("version", "--client", "--output", "json")
+func RunForTarget(log *util.Logger, target *config.ResolvedTarget, args ...string) error {
+	return util.Run(log, "kubectl", targetArgs(target, args...)...)
+}
+
+func Version(log *util.Logger) (string, error) {
+	bytes, err := util.Capture(log, "kubectl", "version", "--client", "--output", "json")
 	if err != nil {
 		return "", err
 	}
 
 	var version VersionDetails
-	if err := yaml.Unmarshal(bytes, &version); err != nil {
+	if err := json.Unmarshal(bytes, &version); err != nil {
 		return "", err
 	}
 
-	return "v" + version.Major + "." + version.Minor, nil
-}
-
-type ClientVersion struct {
-	Major string `yaml:"major,omitempty"`
-	Minor string `yaml:"minor,omitempty"`
+	return "v" + version.ClientVersion.Major + "." + version.ClientVersion.Minor, nil
 }
 
 type VersionDetails struct {
-	ClientVersion `yaml:"clientVersion,omitempty"`
+	ClientVersion version.Info `json:"clientVersion,omitempty"`
 }
 
-func capture(args ...string) ([]byte, error) {
-	cmd := runCmdWithArgs(args)
-
-	buf := &bytes.Buffer{}
-	cmd.Stdin = bytes.NewReader([]byte{})
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = buf
-
-	err := cmd.Run()
-	if err != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
-}
-
-func runCmdWithArgs(args []string) *exec.Cmd {
-	return exec.Command("kubectl", args...)
-}
-
-func appendTargetArgs(args []string, target *config.ResolvedTarget) []string {
+func targetArgs(target *config.ResolvedTarget, args ...string) []string {
 	return append(args,
 		"--context", target.Context,
 		"--namespace", target.Namespace,

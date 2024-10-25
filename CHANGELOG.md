@@ -1,3 +1,9 @@
+# v2.2.0
+
+* Automatically flush any CDN cache on deployment.
+* Add verbose flag.
+* Update dependencies.
+
 # v2.1.0
 
 * Add support for explicit default apps (`default: true`).

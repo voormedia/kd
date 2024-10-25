@@ -1,7 +1,10 @@
 package config
 
-/* Maximum configuration version accepted by this version of kd.
-   Increment this version on API incompatible changes. */
+/*
+Maximum configuration version accepted by this version of kd.
+
+	Increment this version on API incompatible changes.
+*/
 const LatestVersion uint = 2
 
 type StringArray []string

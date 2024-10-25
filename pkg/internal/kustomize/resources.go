@@ -6,19 +6,21 @@ import (
 	"text/template"
 
 	"github.com/voormedia/kd/pkg/config"
+	"github.com/voormedia/kd/pkg/util"
 	"sigs.k8s.io/kustomize/api/krusty"
 	"sigs.k8s.io/kustomize/api/provider"
 	"sigs.k8s.io/kustomize/api/resmap"
 	"sigs.k8s.io/kustomize/kyaml/filesys"
 )
 
-func GetResources(app *config.ResolvedApp, target *config.ResolvedTarget, digest string) ([]byte, error) {
+func GetResources(log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarget, digest string) ([]byte, error) {
 	fSys := filesys.MakeFsOnDisk()
 
 	kust := krusty.MakeKustomizer(
 		krusty.MakeDefaultOptions(),
 	)
 
+	log.Debug("Running kustomize build for", filepath.Join(app.Path, target.Path))
 	res, err := kust.Run(fSys, filepath.Join(app.Path, target.Path))
 	if err != nil {
 		return nil, err

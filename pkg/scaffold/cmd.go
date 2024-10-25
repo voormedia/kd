@@ -375,20 +375,6 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 1
 
-      # PostgreSQL proxy container.
-      # - name: cloudsql-proxy
-      #   image: gcr.io/cloudsql-docker/gce-proxy:1.11
-      #   command: [
-      #     "/cloud_sql_proxy",
-      #     "-instances=<INSTANCE-NAME>=tcp:5432",
-      #     "-credential_file=/secrets/cloudsql/credentials.json"
-      #   ]
-      #
-      #   volumeMounts:
-      #   - name: cloudsql-instance-credentials
-      #     mountPath: /secrets/cloudsql
-      #     readOnly: true
-
       # To create this secret, run:
       #   kd kubectl <ENVIRONMENT> create secret generic
       #   cloudsql-instance-credentials --from-file=credentials.json=<KEY-FILE>

@@ -157,6 +157,12 @@ func (app *ResolvedApp) RepositoryWithDigest(digest string) string {
 	return app.Registry + "/" + app.Name + "@" + digest
 }
 
+func (target *ResolvedTarget) GCPProject() string {
+	// Context looks like: gke_voormedia-187708_europe-west1-b_voormedia-2
+	parts := strings.Split(target.Target.Context, "_")
+	return parts[1]
+}
+
 func (a *StringArray) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var multi []string
 	err := unmarshal(&multi)
