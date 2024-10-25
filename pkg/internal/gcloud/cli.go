@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/voormedia/kd/pkg/util"
 	"github.com/voormedia/kd/pkg/config"
+	"github.com/voormedia/kd/pkg/util"
 )
 
 func ScheduleCDNCacheFlush(log *util.Logger, target *config.ResolvedTarget, annotations map[string]string) (bool, error) {

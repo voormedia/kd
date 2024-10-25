@@ -5,12 +5,12 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/voormedia/kd/pkg/util"
 	"github.com/distribution/reference"
 	"github.com/docker/cli/cli/config"
 	manifesttypes "github.com/docker/cli/cli/manifest/types"
 	"github.com/docker/cli/cli/registry/client"
 	"github.com/docker/docker/api/types/registry"
+	"github.com/voormedia/kd/pkg/util"
 )
 
 type ImageManifest = manifesttypes.ImageManifest

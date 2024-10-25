@@ -10,7 +10,7 @@ import (
 type Level int
 
 const (
-	Info Level = 0
+	Info  Level = 0
 	Debug Level = 1
 )
 

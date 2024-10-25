@@ -3,8 +3,8 @@ package kubectl
 import (
 	"encoding/json"
 
-	"github.com/voormedia/kd/pkg/util"
 	"github.com/voormedia/kd/pkg/config"
+	"github.com/voormedia/kd/pkg/util"
 	networking "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/version"
 )
