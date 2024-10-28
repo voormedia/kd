@@ -20,6 +20,17 @@ func Run(log *Logger, name string, args ...string) error {
 	return cmd.Run()
 }
 
+func RunInteractively(log *Logger, name string, args ...string) error {
+	log.Debug("Executing interactively:", name, strings.Join(args, " "))
+
+	cmd := exec.Command(name, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+
+	return cmd.Run()
+}
+
 func RunWithInput(log *Logger, input []byte, name string, args ...string) error {
 	log.Debug("Executing with input:", name, strings.Join(args, " "))
 

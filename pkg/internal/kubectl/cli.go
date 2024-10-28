@@ -10,11 +10,21 @@ import (
 )
 
 func ApplyFromStdin(log *util.Logger, target *config.ResolvedTarget, input []byte) error {
-	return util.RunWithInput(log, input, "kubectl", targetArgs(target, "apply", "-f", "-")...)
+	return util.RunWithInput(log, input,
+		"kubectl",
+		"--context", target.Context,
+		"--namespace", target.Namespace,
+		"apply", "-f", "-")
 }
 
 func GetGCEIngresses(log *util.Logger, target *config.ResolvedTarget) ([]*networking.Ingress, error) {
-	bytes, err := util.Capture(log, "kubectl", targetArgs(target, "get", "ingress", "--output", "json")...)
+	bytes, err := util.Capture(log,
+		"kubectl",
+		"--context", target.Context,
+		"--namespace", target.Namespace,
+		"get", "ingress",
+		"--output", "json")
+
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +45,20 @@ func GetGCEIngresses(log *util.Logger, target *config.ResolvedTarget) ([]*networ
 }
 
 func RunForTarget(log *util.Logger, target *config.ResolvedTarget, args ...string) error {
-	return util.Run(log, "kubectl", targetArgs(target, args...)...)
+	args = append([]string{
+		"--context", target.Context,
+		"--namespace", target.Namespace,
+	}, args...)
+
+	return util.RunInteractively(log, "kubectl", args...)
 }
 
 func Version(log *util.Logger) (string, error) {
-	bytes, err := util.Capture(log, "kubectl", "version", "--client", "--output", "json")
+	bytes, err := util.Capture(log,
+		"kubectl", "version",
+		"--client",
+		"--output", "json")
+
 	if err != nil {
 		return "", err
 	}
@@ -54,11 +73,4 @@ func Version(log *util.Logger) (string, error) {
 
 type VersionDetails struct {
 	ClientVersion version.Info `json:"clientVersion,omitempty"`
-}
-
-func targetArgs(target *config.ResolvedTarget, args ...string) []string {
-	return append(args,
-		"--context", target.Context,
-		"--namespace", target.Namespace,
-	)
 }
