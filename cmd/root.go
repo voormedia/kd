@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 	"github.com/voormedia/kd/pkg/util"
 )
@@ -23,6 +26,21 @@ func init() {
 	cmdRoot.PersistentFlags().Bool("verbose", false, "verbose output")
 }
 
+func setCommand(cmdRoot *cobra.Command, command string) {
+	cmdRoot.SetArgs(append([]string{command}, os.Args[1:]...))
+}
+
 func Execute() {
+	executableName := filepath.Base(os.Args[0])
+
+	switch executableName {
+	case "kbuild":
+		setCommand(cmdRoot, "build")
+	case "kctl":
+		setCommand(cmdRoot, "ctl")
+	case "kdeploy":
+		setCommand(cmdRoot, "deploy")
+	}
+
 	cmdRoot.Execute()
 }

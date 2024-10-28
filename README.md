@@ -14,8 +14,8 @@
 1. Ensure you have `~/.bin` directory or similar that is in your `$PATH`
 2. Install KD:
 
-- When using an Apple M1+ Mac run: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_arm64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
-- When using an Intel Mac run: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd`
+- When using an Apple M1+ Mac run: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_arm64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd && ln -sf ~/.bin/kd ~/.bin/kbuild && ln -sf ~/.bin/kd ~/.bin/kdeploy && ln -sf ~/.bin/kd ~/.bin/kctl`
+- When using an Intel Mac run: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd && ln -sf ~/.bin/kd ~/.bin/kbuild && ln -sf ~/.bin/kd ~/.bin/kdeploy && ln -sf ~/.bin/kd ~/.bin/kctl`
 
 3. Install Google Cloud credential helper:
 
@@ -36,7 +36,7 @@ example, to expose the SSH key `id_ed25519` to `kd`, execute the following:
 
 `ssh-add ~/.ssh/id_ed25519`
 
-In case your .ssh folder does not contain the file `id_ed25519` but `id_rsa`, use the following command: 
+In case your .ssh folder does not contain the file `id_ed25519` but `id_rsa`, use the following command:
 
 `ssh-add ~/.ssh/id_rsa`
 

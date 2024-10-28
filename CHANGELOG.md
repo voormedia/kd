@@ -1,3 +1,7 @@
+# v2.3.0
+
+* Introduce aliases `kbuild` for `kd build`, `kdeploy` for `kd deploy` and `kctl` for `kd ctl`.
+
 # v2.2.1
 
 * Fix issues that prevented the `kd ctl` command from working.
