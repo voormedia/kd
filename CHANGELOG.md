@@ -1,3 +1,7 @@
+# v2.2.1
+
+* Fix issues that prevented the `kd ctl` command from working.
+
 # v2.2.0
 
 * Automatically flush any CDN cache on deployment.
