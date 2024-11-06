@@ -12,10 +12,14 @@ import (
 )
 
 func Run(log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarget) error {
-	log.Note("Retrieving image", app.Name+":"+app.Tag)
-	img, err := docker.GetImage(log, app.Repository())
-	if err != nil {
-		return err
+	var img docker.ImageManifest
+	if !app.SkipBuild {
+		log.Note("Retrieving image", app.Name+":"+app.Tag)
+		image, err := docker.GetImage(log, app.Repository())
+		if err != nil {
+			return err
+		}
+		img = image
 	}
 
 	res, err := kustomize.GetResources(log, app, target, img.Descriptor.Digest.String())
@@ -34,10 +38,12 @@ func Run(log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarge
 		return err
 	}
 
-	log.Note("Tagging image", app.Name+":"+target.Name)
-	err = docker.TagImage(log, img, app.RepositoryWithTag(target.Name))
-	if err != nil {
-		return err
+	if !app.SkipBuild {
+		log.Note("Tagging image", app.Name+":"+target.Name)
+		err = docker.TagImage(log, img, app.RepositoryWithTag(target.Name))
+		if err != nil {
+			return err
+		}
 	}
 
 	ingresses, err := kubectl.GetGCEIngresses(log, target)
@@ -62,6 +68,10 @@ func Run(log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarge
 		log.Note("Requesting cache flush for", strings.Join(names, ", "))
 	}
 
-	log.Success("Successfully deployed", app.Repository(), "to", target.Name)
+	if app.SkipBuild {
+		log.Success("Successfully deployed", app.Name, "to", target.Name)
+	} else {
+		log.Success("Successfully deployed", app.Repository(), "to", target.Name)
+	}
 	return nil
 }

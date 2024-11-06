@@ -44,6 +44,13 @@ func GetResources(log *util.Logger, app *config.ResolvedApp, target *config.Reso
 
 	// Search and replace in the generated YAML to set the actual deployment
 	// image. This is the reason we cannot use 'kubectl -k ..' directly.
+
+	if app.SkipBuild {
+		if bytes.Contains(yml, []byte(" image: "+app.Name)) {
+			log.Fatal("Image reference found, but build was skipped for", app.Name)
+		}
+	}
+
 	url := app.RepositoryWithDigest(digest)
 	buf := bytes.NewBuffer(bytes.Replace(yml, []byte(" image: "+app.Name), []byte(" image: "+url), -1))
 

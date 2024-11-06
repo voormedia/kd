@@ -13,6 +13,7 @@ type App struct {
 	Name      string `yaml:"name,omitempty"`
 	Path      string `yaml:"path,omitempty"`
 	Root      string `yaml:"root,omitempty"`
+	SkipBuild bool   `yaml:"skipBuild,omitempty"`
 	Default   bool   `yaml:"default,omitempty"`
 	Platform  string `yaml:"platform,omitempty"`
 	PreBuild  string `yaml:"preBuild,omitempty"`

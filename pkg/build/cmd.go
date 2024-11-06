@@ -9,6 +9,10 @@ import (
 )
 
 func Run(log *util.Logger, app *config.ResolvedApp) error {
+	if app.SkipBuild {
+		log.Fatal("Build is skipped for", app.Name)
+	}
+
 	if app.PreBuild != "" {
 		if strings.Contains(app.PreBuild, "/.ssh") {
 			log.Warn("Pre-build command in 'kdeploy.conf' contains reference to '.ssh'.")

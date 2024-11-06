@@ -1,3 +1,7 @@
+# v2.4.0
+
+* Add support for `skipBuild` configuration option for apps, which allows deploying apps without building an app-specific image.
+
 # v2.3.0
 
 * Introduce aliases `kbuild` for `kd build`, `kdeploy` for `kd deploy` and `kctl` for `kd ctl`.
