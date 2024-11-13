@@ -29,7 +29,12 @@ func RunWithoutStdErr(log *Logger, name string, args ...string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = buf
 
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		os.Stdout.Write(buf.Bytes())
+		return err
+	}
+
+	return nil
 }
 
 func RunInteractively(log *Logger, name string, args ...string) error {

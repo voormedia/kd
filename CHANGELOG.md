@@ -1,3 +1,7 @@
+# v2.5.2
+
+* Display error output if pushing to remote registry fails.
+
 # v2.5.1
 
 * Fix `kd build` to include output to an image even if this is not default.
