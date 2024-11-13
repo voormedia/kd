@@ -68,11 +68,9 @@ func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) erro
 }
 
 func Push(log *util.Logger, app *config.ResolvedApp) error {
-	// Swallow stderr to ignore nag about pushing single-platform image.
-	return util.RunWithoutStdErr(log,
+	return util.Run(log,
 		"docker",
 		"push", app.Repository(),
-		"--platform", app.Platform,
 	)
 }
 

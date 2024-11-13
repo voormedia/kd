@@ -1,3 +1,7 @@
+# v2.5.3
+
+* Increase compatibility with older docker clients.
+
 # v2.5.2
 
 * Display error output if pushing to remote registry fails.
