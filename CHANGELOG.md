@@ -1,3 +1,8 @@
+# v2.5.0
+
+* Automatically use remote cache for builds if supported by the builder (requires containerd).
+* Do not automatically flush CDN cache on deploy, but only when explicitly requested with `--clear-cdn-cache`.
+
 # v2.4.0
 
 * Add support for `skipBuild` configuration option for apps, which allows deploying apps without building an app-specific image.
