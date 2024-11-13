@@ -11,7 +11,7 @@ import (
 	"github.com/voormedia/kd/pkg/util"
 )
 
-func Run(log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarget) error {
+func Run(log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarget, deployClearCDNCaches bool) error {
 	var img docker.ImageManifest
 	if !app.SkipBuild {
 		log.Note("Retrieving image", app.Name+":"+app.Tag)
@@ -46,26 +46,28 @@ func Run(log *util.Logger, app *config.ResolvedApp, target *config.ResolvedTarge
 		}
 	}
 
-	ingresses, err := kubectl.GetGCEIngresses(log, target)
-	if err != nil {
-		return err
-	}
-
-	var names []string
-
-	for _, ingress := range ingresses {
-		flushed, err := gcloud.ScheduleCDNCacheFlush(log, target, ingress.Annotations)
+	if deployClearCDNCaches {
+		ingresses, err := kubectl.GetGCEIngresses(log, target)
 		if err != nil {
 			return err
 		}
 
-		if flushed {
-			names = append(names, ingress.Name)
-		}
-	}
+		var names []string
 
-	if len(names) > 0 {
-		log.Note("Requesting cache flush for", strings.Join(names, ", "))
+		for _, ingress := range ingresses {
+			flushed, err := gcloud.ScheduleCDNCacheFlush(log, target, ingress.Annotations)
+			if err != nil {
+				return err
+			}
+
+			if flushed {
+				names = append(names, ingress.Name)
+			}
+		}
+
+		if len(names) > 0 {
+			log.Note("Requesting cache flush for", strings.Join(names, ", "))
+		}
 	}
 
 	if app.SkipBuild {

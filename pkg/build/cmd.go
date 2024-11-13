@@ -8,7 +8,7 @@ import (
 	"github.com/voormedia/kd/pkg/util"
 )
 
-func Run(log *util.Logger, app *config.ResolvedApp) error {
+func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) error {
 	if app.SkipBuild {
 		log.Fatal("Build is skipped for", app.Name)
 	}
@@ -26,7 +26,17 @@ func Run(log *util.Logger, app *config.ResolvedApp) error {
 	}
 
 	log.Note("Building", app.Name)
-	if err := docker.Build(log, app); err != nil {
+
+	if buildCacheTag == "" {
+		currentBranch, err := util.GetCurrentBranch(log, app.Path)
+		if err != nil {
+			log.Warn("Could not determine current branch:", err)
+		} else {
+			buildCacheTag = currentBranch
+		}
+	}
+
+	if err := docker.Build(log, app, buildCacheTag); err != nil {
 		log.Fatal(err)
 	}
 

@@ -7,6 +7,7 @@ import (
 )
 
 var deployTag string = ""
+var deployClearCDNCaches bool = false
 
 var cmdDeploy = &cobra.Command{
 	Use:                   "deploy [app[:tag]] <target>",
@@ -53,7 +54,7 @@ target to which it was deployed.`,
 			log.Fatal(err)
 		}
 
-		err = deploy.Run(log, app, tgt)
+		err = deploy.Run(log, app, tgt, deployClearCDNCaches)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -62,5 +63,6 @@ target to which it was deployed.`,
 
 func init() {
 	cmdDeploy.Flags().StringVar(&deployTag, "tag", "", "tag to deploy")
+	cmdDeploy.Flags().BoolVar(&deployClearCDNCaches, "clear-cdn-cache", false, "clear any CDN cache after deployment")
 	cmdRoot.AddCommand(cmdDeploy)
 }

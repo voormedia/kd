@@ -149,6 +149,14 @@ func (app *ResolvedApp) Repository() string {
 	return app.RepositoryWithTag(app.Tag)
 }
 
+func (app *ResolvedApp) RepositoryBuildCache(tag string) string {
+	if tag == "" {
+		tag = app.Tag
+	}
+
+	return app.Registry + "/" + app.Name + "/build-cache" + ":" + tag
+}
+
 func (app *ResolvedApp) RepositoryWithTag(tag string) string {
 	return app.Registry + "/" + app.Name + ":" + tag
 }
