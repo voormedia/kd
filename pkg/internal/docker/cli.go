@@ -59,19 +59,12 @@ func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) erro
 
 	return util.Run(log,
 		"docker", append(cmd,
-			"--output=type=image",
+			"--output=type=image,name="+app.Repository()+",push=true",
 			"--file", dockerfile,
 			"--tag", app.Repository(),
 			"--platform", app.Platform,
 			app.Root,
 		)...)
-}
-
-func Push(log *util.Logger, app *config.ResolvedApp) error {
-	return util.Run(log,
-		"docker",
-		"push", app.Repository(),
-	)
 }
 
 func supportsCacheExport(log *util.Logger) bool {

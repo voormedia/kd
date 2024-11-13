@@ -1,3 +1,7 @@
+# v2.5.4
+
+* Combine build and push in a single step.
+
 # v2.5.3
 
 * Increase compatibility with older docker clients.

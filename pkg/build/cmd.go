@@ -41,10 +41,7 @@ func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) error 
 		log.Fatal(err)
 	}
 
-	log.Note("Pushing to", app.Repository())
-	if err := docker.Push(log, app); err != nil {
-		log.Fatal(err)
-	}
+	log.Note("Pushed to", app.Repository())
 
 	if app.PostBuild != "" {
 		err := util.Run(log, "sh", "-c", app.PostBuild)
