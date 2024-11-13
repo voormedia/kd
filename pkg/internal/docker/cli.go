@@ -59,6 +59,7 @@ func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) erro
 
 	return util.Run(log,
 		"docker", append(cmd,
+			"--output=type=image",
 			"--file", dockerfile,
 			"--tag", app.Repository(),
 			"--platform", app.Platform,

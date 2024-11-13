@@ -31,6 +31,7 @@ func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) error 
 		currentBranch, err := util.GetCurrentBranch(log, app.Path)
 		if err != nil {
 			log.Warn("Could not determine current branch:", err)
+			buildCacheTag = "unknown"
 		} else {
 			buildCacheTag = currentBranch
 		}
@@ -40,7 +41,7 @@ func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) error 
 		log.Fatal(err)
 	}
 
-	log.Note("Pushing", app.Name+":"+app.Tag)
+	log.Note("Pushing to", app.Repository())
 	if err := docker.Push(log, app); err != nil {
 		log.Fatal(err)
 	}
@@ -52,6 +53,6 @@ func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) error 
 		}
 	}
 
-	log.Success("Successfully built", app.Repository())
+	log.Success("Successfully built", app.Name+":"+app.Tag)
 	return nil
 }

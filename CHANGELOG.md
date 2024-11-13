@@ -1,3 +1,7 @@
+# v2.5.1
+
+* Fix `kd build` to include output to an image even if this is not default.
+
 # v2.5.0
 
 * Automatically use remote cache for builds if supported by the builder (requires containerd).
