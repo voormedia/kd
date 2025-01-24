@@ -1,3 +1,7 @@
+# v2.6.0
+
+* Allow exposing build secrets with a `--secret` argument to `kbuild`.
+
 # v2.5.4
 
 * Combine build and push in a single step.

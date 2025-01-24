@@ -8,6 +8,7 @@ import (
 
 var buildTag string = ""
 var buildCacheTag string = ""
+var secrets []string
 
 var cmdBuild = &cobra.Command{
 	Use:                   "build [app[:tag]]",
@@ -45,7 +46,7 @@ as "latest" by default. The tag can optionally be specified.`,
 			log.Fatal(err)
 		}
 
-		err = build.Run(log, app, buildCacheTag)
+		err = build.Run(log, app, buildCacheTag, secrets)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -55,5 +56,6 @@ as "latest" by default. The tag can optionally be specified.`,
 func init() {
 	cmdBuild.Flags().StringVar(&buildTag, "tag", "", "tag to use for the built image")
 	cmdBuild.Flags().StringVar(&buildCacheTag, "cache-tag", "", "tag to use for build cache (defaults to git branch)")
+	cmdBuild.Flags().StringArrayVar(&secrets, "secret", []string{}, "secrets to inject into the build environment")
 	cmdRoot.AddCommand(cmdBuild)
 }

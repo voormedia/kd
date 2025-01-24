@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 )
 
-func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) error {
+func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secrets []string) error {
 	dockerfile := filepath.Join(app.Path, "Dockerfile")
 
 	cmd := []string{
@@ -55,6 +55,10 @@ func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string) erro
 		cmd = append(cmd,
 			"--cache-from", "type=registry,ref="+app.RepositoryBuildCache("main"),
 		)
+	}
+
+	for _, secret := range secrets {
+		cmd = append(cmd, "--secret", secret)
 	}
 
 	return util.Run(log,
