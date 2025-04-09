@@ -1,3 +1,7 @@
+# v2.7.0
+
+* Improved build cache tag creation.
+
 # v2.6.0
 
 * Allow exposing build secrets with a `--secret` argument to `kbuild`.
