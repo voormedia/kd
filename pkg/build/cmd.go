@@ -27,16 +27,6 @@ func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secret
 
 	log.Note("Building", app.Name)
 
-	if buildCacheTag == "" {
-		currentBranch, err := util.GetCurrentBranch(log, app.Path)
-		if err != nil {
-			log.Warn("Could not determine current branch:", err)
-			buildCacheTag = "unknown"
-		} else {
-			buildCacheTag = currentBranch
-		}
-	}
-
 	if err := docker.Build(log, app, buildCacheTag, secrets); err != nil {
 		log.Fatal(err)
 	}

@@ -18,6 +18,8 @@ func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secr
 		"buildx", "build",
 	}
 
+	buildCacheTagParts := []string{}
+
 	if sock, ok := os.LookupEnv("SSH_AUTH_SOCK"); ok {
 		conn, err := net.Dial("unix", sock)
 
@@ -34,31 +36,55 @@ func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secr
 			log.Warn("Enabled SSH agent key forwarding, but no SSH keys are exposed")
 		} else {
 			log.Note("Enabled SSH agent key forwarding")
+			if buildCacheTag == "" {
+				buildCacheTagParts = append(buildCacheTagParts, "ssh")
+			}
 		}
 
 		cmd = append(cmd, "--ssh", "default")
 	}
 
-	targetBuildCache := app.RepositoryBuildCache(buildCacheTag)
+	for _, secret := range secrets {
+		cmd = append(cmd, "--secret", secret)
+		parts := strings.Split(secret, "=")
+		if len(parts) > 1 {
+			name := parts[1]
+			buildCacheTagParts = append(buildCacheTagParts, strings.ToLower(strings.ReplaceAll(name, "_", "-")))
+		}
+	}
+
+	buildCacheFallbackTag := ""
+
+	if buildCacheTag == "" {
+		currentBranch, err := util.GetCurrentBranch(log, app.Path)
+		if err != nil {
+			log.Warn("Could not determine current branch:", err)
+			currentBranch = "unknown"
+		}
+
+		buildCacheTag = strings.Join(append([]string{currentBranch}, buildCacheTagParts...), "-")
+
+		if currentBranch != "main" {
+			buildCacheFallbackTag = strings.Join(append([]string{"main"}, buildCacheTagParts...), "-")
+		}
+	}
 
 	if supportsCacheExport(log) {
+		targetBuildCache := app.RepositoryBuildCache(buildCacheTag)
 		cmd = append(cmd,
 			"--provenance=false",
 			"--cache-to", "type=registry,ref="+targetBuildCache+",mode=max",
 			"--cache-from", "type=registry,ref="+targetBuildCache,
 		)
+
+		if buildCacheFallbackTag != "" {
+			targetFallbackBuildCache := app.RepositoryBuildCache(buildCacheFallbackTag)
+			cmd = append(cmd,
+				"--cache-from", "type=registry,ref="+targetFallbackBuildCache,
+			)
+		}
 	} else {
 		log.Warn("Builder does not support remote cache, using local cache only")
-	}
-
-	if buildCacheTag != "main" {
-		cmd = append(cmd,
-			"--cache-from", "type=registry,ref="+app.RepositoryBuildCache("main"),
-		)
-	}
-
-	for _, secret := range secrets {
-		cmd = append(cmd, "--secret", secret)
 	}
 
 	return util.Run(log,
