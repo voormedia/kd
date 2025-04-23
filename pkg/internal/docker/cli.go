@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 )
 
-func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secrets []string) error {
+func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secrets []string, producer string) error {
 	dockerfile := filepath.Join(app.Path, "Dockerfile")
 
 	cmd := []string{
@@ -93,6 +93,7 @@ func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secr
 			"--file", dockerfile,
 			"--tag", app.Repository(),
 			"--platform", app.Platform,
+			"--label", "producer="+producer,
 			app.Root,
 		)...)
 }

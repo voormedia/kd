@@ -46,7 +46,7 @@ as "latest" by default. The tag can optionally be specified.`,
 			log.Fatal(err)
 		}
 
-		err = build.Run(log, app, buildCacheTag, secrets)
+		err = build.Run(log, app, buildCacheTag, secrets, "kd " + cmdRoot.Version)
 		if err != nil {
 			log.Fatal(err)
 		}

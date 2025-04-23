@@ -8,7 +8,7 @@ import (
 	"github.com/voormedia/kd/pkg/util"
 )
 
-func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secrets []string) error {
+func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secrets []string, producer string) error {
 	if app.SkipBuild {
 		log.Fatal("Build is skipped for", app.Name)
 	}
@@ -27,7 +27,7 @@ func Run(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secret
 
 	log.Note("Building", app.Name)
 
-	if err := docker.Build(log, app, buildCacheTag, secrets); err != nil {
+	if err := docker.Build(log, app, buildCacheTag, secrets, producer); err != nil {
 		log.Fatal(err)
 	}
 
