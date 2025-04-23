@@ -1,3 +1,7 @@
+# v2.7.1
+
+* Add producer as label to built images.
+
 # v2.7.0
 
 * Improved build cache tag creation.
