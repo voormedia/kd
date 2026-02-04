@@ -13,6 +13,7 @@ type ResolvedApp struct {
 	App
 	Tag      string
 	Registry string
+	Cache    string
 }
 
 type ResolvedTarget struct {
@@ -110,6 +111,7 @@ func (conf *Config) ResolveApp(name string, tag string) (*ResolvedApp, error) {
 				App:      app,
 				Tag:      tag,
 				Registry: conf.Registry,
+				Cache:    conf.Cache,
 			}, nil
 		}
 	}
@@ -154,7 +156,12 @@ func (app *ResolvedApp) RepositoryBuildCache(tag string) string {
 		tag = app.Tag
 	}
 
-	return app.Registry + "/" + app.Name + "/build-cache" + ":" + tag
+	// Use custom cache location if specified.
+	if app.Cache != "" {
+		return app.Cache + "/" + app.Name + ":" + tag
+	} else {
+		return app.Registry + "/" + app.Name + "/build-cache" + ":" + tag
+	}
 }
 
 func (app *ResolvedApp) RepositoryWithTag(tag string) string {

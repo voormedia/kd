@@ -338,3 +338,32 @@ func TestResolveMissingTarget(t *testing.T) {
 	assert.Nil(t, tgt)
 	assert.Equal(t, "Unknown target 'prd'", err.Error())
 }
+
+func TestRepositoryBuildCache(t *testing.T) {
+	app := &ResolvedApp{
+		App: App{
+			Name: "foo",
+		},
+		Tag:      "my-tag",
+		Registry: "registry.example.com",
+		Cache:    "cache.example.com",
+	}
+
+	assert.Equal(t, "cache.example.com/foo:my-tag", app.RepositoryBuildCache(""))
+	assert.Equal(t, "cache.example.com/foo:my-tag", app.RepositoryBuildCache("my-tag"))
+	assert.Equal(t, "cache.example.com/foo:other-tag", app.RepositoryBuildCache("other-tag"))
+}
+
+func TestRepositoryBuildCacheDefault(t *testing.T) {
+	app := &ResolvedApp{
+		App: App{
+			Name: "foo",
+		},
+		Tag:      "my-tag",
+		Registry: "registry.example.com",
+	}
+
+	assert.Equal(t, "registry.example.com/foo/build-cache:my-tag", app.RepositoryBuildCache(""))
+	assert.Equal(t, "registry.example.com/foo/build-cache:my-tag", app.RepositoryBuildCache("my-tag"))
+	assert.Equal(t, "registry.example.com/foo/build-cache:other-tag", app.RepositoryBuildCache("other-tag"))
+}
