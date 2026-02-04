@@ -1,3 +1,7 @@
+# v2.8.0
+
+* Add custom `cache` location option in `kdeploy.conf`.
+
 # v2.7.1
 
 * Add producer as label to built images.

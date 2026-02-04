@@ -212,8 +212,11 @@ var kdeploy = template.Must(template.New(config.ConfigName).Parse(
 	`# Check version compatibility with kd
 version: {{.ApiVersion}}
 
-# Private docker registry to push images to
+# Private docker registry for deployable images
 registry: eu.gcr.io/{{.Project}}/{{.Customer}}
+
+# Private docker registry for build cache images
+cache: europe-west1-docker.pkg.dev/{{.Project}}/build-cache/{{.Customer}}
 
 # List of apps to build
 apps:

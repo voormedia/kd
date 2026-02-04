@@ -31,6 +31,7 @@ type Target struct {
 type Config struct {
 	ApiVersion uint     `yaml:"version,omitempty"`
 	Registry   string   `yaml:"registry,omitempty"`
+	Cache      string   `yaml:"cache,omitempty"`
 	Apps       []App    `yaml:"apps,omitempty"`
 	Targets    []Target `yaml:"targets,omitempty"`
 }
