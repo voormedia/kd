@@ -19,8 +19,8 @@
 
 3. Install Google Cloud credential helper:
 
-- When using an Apple M1+ Mac run: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_arm64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
-- When using an Intel Mac run: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_amd64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
+- When using an Apple M1+ Mac run: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_arm64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker -include-artifact-registry`
+- When using an Intel Mac run: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_amd64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker -include-artifact-registry`
 
 ### Option 2 – from source
 
