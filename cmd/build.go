@@ -8,6 +8,7 @@ import (
 
 var buildTag string = ""
 var buildCacheTag string = ""
+var buildNoCacheWrite bool = false
 var secrets []string
 
 var cmdBuild = &cobra.Command{
@@ -46,7 +47,7 @@ as "latest" by default. The tag can optionally be specified.`,
 			log.Fatal(err)
 		}
 
-		err = build.Run(log, app, buildCacheTag, secrets, "kd " + cmdRoot.Version)
+		err = build.Run(log, app, !buildNoCacheWrite, buildCacheTag, secrets, "kd " + cmdRoot.Version)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -56,6 +57,7 @@ as "latest" by default. The tag can optionally be specified.`,
 func init() {
 	cmdBuild.Flags().StringVar(&buildTag, "tag", "", "tag to use for the built image")
 	cmdBuild.Flags().StringVar(&buildCacheTag, "cache-tag", "", "tag to use for build cache (defaults to git branch)")
+	cmdBuild.Flags().BoolVar(&buildNoCacheWrite, "no-cache-write", false, "do not write to remote cache after build (reduces network traffic)")
 	cmdBuild.Flags().StringArrayVar(&secrets, "secret", []string{}, "secrets to inject into the build environment")
 	cmdRoot.AddCommand(cmdBuild)
 }

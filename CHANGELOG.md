@@ -1,3 +1,7 @@
+# v2.9.0
+
+* Added `--no-cache-write` option to `kd build` to prevent writing to remote cache after build to reduce network traffic.
+
 # v2.8.0
 
 * Add custom `cache` location option in `kdeploy.conf`.

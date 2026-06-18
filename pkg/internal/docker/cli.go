@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 )
 
-func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secrets []string, producer string) error {
+func Build(log *util.Logger, app *config.ResolvedApp, writeBuildCache bool, buildCacheTag string, secrets []string, producer string) error {
 	dockerfile := filepath.Join(app.Path, "Dockerfile")
 
 	cmd := []string{
@@ -69,22 +69,26 @@ func Build(log *util.Logger, app *config.ResolvedApp, buildCacheTag string, secr
 		}
 	}
 
-	if supportsCacheExport(log) {
-		targetBuildCache := app.RepositoryBuildCache(buildCacheTag)
-		cmd = append(cmd,
-			"--provenance=false",
-			"--cache-to", "type=registry,ref="+targetBuildCache+",mode=max",
-			"--cache-from", "type=registry,ref="+targetBuildCache,
-		)
-
-		if buildCacheFallbackTag != "" {
-			targetFallbackBuildCache := app.RepositoryBuildCache(buildCacheFallbackTag)
+	if writeBuildCache {
+		if supportsCacheExport(log) {
+			targetBuildCache := app.RepositoryBuildCache(buildCacheTag)
 			cmd = append(cmd,
-				"--cache-from", "type=registry,ref="+targetFallbackBuildCache,
+				"--provenance=false",
+				"--cache-to", "type=registry,ref="+targetBuildCache+",mode=max",
+				"--cache-from", "type=registry,ref="+targetBuildCache,
 			)
+
+			if buildCacheFallbackTag != "" {
+				targetFallbackBuildCache := app.RepositoryBuildCache(buildCacheFallbackTag)
+				cmd = append(cmd,
+					"--cache-from", "type=registry,ref="+targetFallbackBuildCache,
+				)
+			}
+		} else {
+			log.Warn("Builder does not support remote cache, using local cache only")
 		}
 	} else {
-		log.Warn("Builder does not support remote cache, using local cache only")
+		log.Warn("Skipping write to remote cache, using local cache only")
 	}
 
 	return util.Run(log,
