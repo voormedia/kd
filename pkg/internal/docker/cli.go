@@ -16,6 +16,10 @@ func Build(log *util.Logger, app *config.ResolvedApp, writeBuildCache bool, buil
 
 	cmd := []string{
 		"buildx", "build",
+
+		// Build metadata makes Docker publish an index of the image and its metadata.
+		// Our deployment code expects a single image, so leave out the metadata.
+		"--provenance=false",
 	}
 
 	buildCacheTagParts := []string{}
@@ -73,7 +77,6 @@ func Build(log *util.Logger, app *config.ResolvedApp, writeBuildCache bool, buil
 		if supportsCacheExport(log) {
 			targetBuildCache := app.RepositoryBuildCache(buildCacheTag)
 			cmd = append(cmd,
-				"--provenance=false",
 				"--cache-to", "type=registry,ref="+targetBuildCache+",mode=max",
 				"--cache-from", "type=registry,ref="+targetBuildCache,
 			)
