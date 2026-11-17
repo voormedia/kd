@@ -1,3 +1,7 @@
+# v2.10.0
+
+* Push images with zstd-compressed layers, which unpack faster when pulled. Requires containerd 1.5+ (any supported GKE version) or Docker 23+ to pull.
+
 # v2.9.0
 
 * Added `--no-cache-write` option to `kd build` to prevent writing to remote cache after build to reduce network traffic.

@@ -96,7 +96,10 @@ func Build(log *util.Logger, app *config.ResolvedApp, writeBuildCache bool, buil
 
 	return util.Run(log,
 		"docker", append(cmd,
-			"--output=type=image,name="+app.Repository()+",push=true",
+			// Push zstd-compressed layers (requires OCI media types); these unpack
+			// much faster than gzip when pulled. Base image layers are recompressed
+			// as well, so the entire image benefits.
+			"--output=type=image,name="+app.Repository()+",push=true,oci-mediatypes=true,compression=zstd,force-compression=true",
 			"--file", dockerfile,
 			"--tag", app.Repository(),
 			"--platform", app.Platform,
