@@ -12,21 +12,15 @@
 ### Option 1 – prebuilt
 
 1. Ensure you have `~/.bin` directory or similar that is in your `$PATH`
-2. Install KD:
+2. Install KD: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_arm64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd && ln -sf ~/.bin/kd ~/.bin/kbuild && ln -sf ~/.bin/kd ~/.bin/kdeploy && ln -sf ~/.bin/kd ~/.bin/kctl`
 
-- When using an Apple M1+ Mac run: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_arm64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd && ln -sf ~/.bin/kd ~/.bin/kbuild && ln -sf ~/.bin/kd ~/.bin/kdeploy && ln -sf ~/.bin/kd ~/.bin/kctl`
-- When using an Intel Mac run: `rm -f ~/.bin/kd && curl -L $(curl -s https://api.github.com/repos/voormedia/kd/releases/latest | grep browser_download_url | grep darwin_amd64 | cut -d '"' -f 4) -o ~/.bin/kd && chmod +x ~/.bin/kd && ln -sf ~/.bin/kd ~/.bin/kbuild && ln -sf ~/.bin/kd ~/.bin/kdeploy && ln -sf ~/.bin/kd ~/.bin/kctl`
-
-3. Install Google Cloud credential helper:
-
-- When using an Apple M1+ Mac run: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_arm64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker -include-artifact-registry`
-- When using an Intel Mac run: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_amd64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker -include-artifact-registry`
+3. Install Google Cloud credential helper: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_arm64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker -include-artifact-registry`
 
 ### Option 2 – from source
 
 1. Make sure you have a working `go` installation
 2. Build KD from source: `go install github.com/voormedia/kd`
-3. Install Google Cloud credential helper: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_darwin_amd64-1.4.3.zip | funzip > ~/.bin/docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker`
+3. Install Google Cloud credential helper: `curl -L https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.0/docker-credential-gcr_darwin_arm64-2.1.0.tar.gz | tar -xzC ~/.bin docker-credential-gcr && chmod +x ~/.bin/docker-credential-gcr && docker-credential-gcr configure-docker -include-artifact-registry`
 
 ## SSH forwarding
 
